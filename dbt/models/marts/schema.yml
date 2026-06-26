@@ -1,0 +1,244 @@
+version: 2
+
+models:
+  - name: mart_facility_directory
+    description: >
+      Enriched facility directory with geographic zone hierarchy.
+      BI contract: dashboards should query this mart, not raw tables.
+    data_tests:
+      - reconcile_with_source:
+          arguments:
+            source_table: referencedata.facilities
+            source_pk: id
+            target_pk: facility_id
+          config:
+            tags: [reconcile]
+    columns:
+      - name: facility_id
+        description: Facility UUID
+        tests:
+          - not_null
+          - unique
+      - name: facility_code
+        tests:
+          - not_null
+      - name: facility_name
+        tests:
+          - not_null
+
+  - name: mart_requisition_summary
+    description: >
+      Requisitions enriched with facility, program, and geographic zone names.
+      BI contract: dashboards should query this mart, not raw tables.
+    data_tests:
+      - reconcile_with_source:
+          arguments:
+            source_table: requisition.requisitions
+            source_pk: id
+            target_pk: requisition_id
+          config:
+            tags: [reconcile]
+    columns:
+      - name: requisition_id
+        description: Requisition UUID
+        tests:
+          - not_null
+          - unique
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - INITIATED
+                  - SUBMITTED
+                  - AUTHORIZED
+                  - IN_APPROVAL
+                  - APPROVED
+                  - RELEASED
+                  - RELEASED_WITHOUT_ORDER
+                  - SKIPPED
+                  - REJECTED
+      - name: facility_name
+        tests:
+          - not_null
+      - name: program_name
+        tests:
+          - not_null
+
+  - name: mart_stock_status
+    description: >
+      Stock status per requisition line item for stockout and stock level analysis.
+      Joins line items with facility, product, program, and period dimensions.
+      Includes all requisition statuses within a rolling 3-year window.
+      BI contract: dashboards should query this mart, not raw tables.
+    # Reconcile: the mart applies a 3-year rolling window on
+    # requisitions.created_date, so the source side must apply the same
+    # window via a join on requisitions. tolerance_rows absorbs the
+    # unavoidable drift between mart-build time and test-run time (and the
+    # stale-row aging of the incremental refresh on this windowed mart).
+    data_tests:
+      - reconcile_with_source:
+          arguments:
+            source_table: requisition.requisition_line_items
+            target_pk: line_item_id
+            tolerance_rows: 10000
+            source_query: |
+              select
+                count() as row_count,
+                sum(cityHash64(li.id)) as pk_hash
+              from {{ source_pg('requisition', 'requisition_line_items') }} li
+              inner join {{ source_pg('requisition', 'requisitions') }} r
+                on li.requisitionid = r.id
+              where r.createddate >= now() - interval 3 year
+          config:
+            tags: [reconcile]
+    columns:
+      - name: line_item_id
+        description: Requisition line item UUID
+        tests:
+          - not_null
+          - unique
+      - name: requisition_id
+        tests:
+          - not_null
+      - name: facility_name
+        tests:
+          - not_null
+      - name: program_name
+        tests:
+          - not_null
+      - name: product_code
+        tests:
+          - not_null
+      - name: product_name
+        tests:
+          - not_null
+      - name: stock_status
+        description: "Stock level category: Stocked Out, Understocked, Adequately stocked, Overstocked, Unknown"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Stocked Out
+                  - Understocked
+                  - Adequately stocked
+                  - Overstocked
+                  - Unknown
+      - name: combined_stockout
+        description: "Binary flag: 1 if stocked out, 0 otherwise"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+
+  - name: mart_non_reporting_facilities
+    description: >
+      Active facilities that did not submit a requisition for a given
+      program and period. Shows reporting blind spots alongside stockout data.
+      BI contract: dashboards should query this mart, not raw tables.
+    columns:
+      - name: facility_name
+        tests:
+          - not_null
+      - name: program_name
+        tests:
+          - not_null
+      - name: period_name
+        tests:
+          - not_null
+      - name: reporting_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Did not report
+
+  - name: mart_adjustments
+    description: >
+      One row per stock_adjustment line, joined to its line item,
+      requisition, facility, program, period, product, the latest
+      non-INITIATED/SUBMITTED/SKIPPED status change, and the adjustment
+      reason. Replaces the legacy `adjustments` materialized view.
+    # Reconcile: same 3-year window as mart_stock_status (sa → li → r),
+    # with tolerance_rows to absorb mart-build clock drift and incremental
+    # aging on the windowed mart.
+    data_tests:
+      - reconcile_with_source:
+          arguments:
+            source_table: requisition.stock_adjustments
+            target_pk: adjustment_id
+            tolerance_rows: 10000
+            source_query: |
+              select
+                count() as row_count,
+                sum(cityHash64(sa.id)) as pk_hash
+              from {{ source_pg('requisition', 'stock_adjustments') }} sa
+              inner join {{ source_pg('requisition', 'requisition_line_items') }} li
+                on sa.requisitionlineitemid = li.id
+              inner join {{ source_pg('requisition', 'requisitions') }} r
+                on li.requisitionid = r.id
+              where r.createddate >= now() - interval 3 year
+          config:
+            tags: [reconcile]
+    columns:
+      - name: adjustment_id
+        tests:
+          - not_null
+          - unique
+      - name: requisition_id
+        tests:
+          - not_null
+      - name: line_item_id
+        tests:
+          - not_null
+
+  - name: mart_logistics_summary
+    description: >
+      Subset of mart_stock_status filtered to the top-5 products by total
+      consumption in the most recent reporting month. Backs the Logistics
+      Summary Report chart on the Consumption dashboard. Refreshed on every
+      dbt build.
+    columns:
+      - name: line_item_id
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        tests:
+          - not_null
+
+  - name: mart_reporting_status
+    description: >
+      Reporting outcome per (facility × program × period). Superset of
+      mart_non_reporting_facilities — includes both 'Reported' and
+      'Did not report' rows, plus submission timing for the timeliness
+      chart on the Reporting Rate dashboard.
+      BI contract: dashboards should query this mart, not raw tables.
+    columns:
+      - name: facility_name
+        tests:
+          - not_null
+      - name: program_name
+        tests:
+          - not_null
+      - name: period_name
+        tests:
+          - not_null
+      - name: reporting_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Did not report
+                  - Reported
+      - name: submitted_week_of_month
+        tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false

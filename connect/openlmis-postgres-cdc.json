@@ -1,0 +1,48 @@
+{
+  "name": "openlmis-postgres-cdc",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+
+    "database.hostname": "${SOURCE_PG_HOST}",
+    "database.port": "${SOURCE_PG_PORT}",
+    "database.dbname": "${SOURCE_PG_DB}",
+    "database.user": "${SOURCE_PG_USER}",
+    "database.password": "${SOURCE_PG_PASSWORD}",
+
+    "_comment.sslmode": "TLS for the source connection. 'prefer' (default) uses SSL if the server offers it and falls back to plaintext — fine for local DBs on the Docker network (e.g. ref-distro) that don't serve SSL. Set SOURCE_PG_SSLMODE=require for managed/remote sources like RDS to enforce encryption in transit (mandatory if the server has rds.force_ssl=1). Use verify-full only if you mount the server CA bundle into the kafka-connect image.",
+    "database.sslmode": "${SOURCE_PG_SSLMODE}",
+
+    "topic.prefix": "${DEBEZIUM_TOPIC_PREFIX}",
+
+    "plugin.name": "pgoutput",
+    "slot.name": "${SOURCE_PG_SLOT_NAME}",
+    "publication.name": "${SOURCE_PG_PUBLICATION}",
+
+    "table.include.list": "${SOURCE_PG_TABLE_ALLOWLIST}",
+
+    "_comment.converters": "JSON converters chosen for ClickHouse compatibility. JSON is natively supported by ClickHouse Kafka engine, human-readable in Kafka UI, and avoids the complexity of Avro schema management.",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+
+    "_comment.decimal_handling": "double is lossy for financial NUMERIC columns but ClickHouse has no native NUMERIC type. Use 'precise' (string) if exact decimal fidelity is required downstream.",
+    "decimal.handling.mode": "double",
+    "time.precision.mode": "connect",
+    "tombstones.on.delete": "true",
+    "_comment.snapshot_mode": "Default 'when_needed' behaves like 'initial' when offsets are valid, but also runs a fresh snapshot when stored offsets point to an LSN no longer in WAL (e.g., after slot invalidation or stale connect-offsets that survived a connector delete). Set DEBEZIUM_SNAPSHOT_MODE=no_data in .env for initial-load workflows where data is loaded via scripts/bootstrap/import.sh and Debezium should only record the LSN baseline without snapshotting.",
+    "snapshot.mode": "${DEBEZIUM_SNAPSHOT_MODE}",
+
+    "_comment.signal": "Source signal channel: Debezium reads rows from public.debezium_signal to trigger ad-hoc actions like incremental snapshots (see scripts/connect/snapshot-tables.sh). The signal table must be in the publication AND in table.include.list — register-connector.sh appends it automatically so users only configure SOURCE_PG_TABLE_ALLOWLIST. The value for signal.data.collection uses Debezium's schema.table form for the PostgreSQL connector (no database prefix).",
+    "signal.enabled.channels": "source",
+    "signal.data.collection": "public.debezium_signal",
+
+    "heartbeat.interval.ms": "10000",
+    "heartbeat.action.query": "INSERT INTO public.reporting_heartbeat (ts) VALUES (NOW()) ON CONFLICT (id) DO UPDATE SET ts = NOW()",
+
+    "errors.retry.delay.max.ms": "60000",
+    "errors.retry.timeout": "300000",
+    "retriable.restart.connector.wait.ms": "10000"
+  }
+}

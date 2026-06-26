@@ -1,0 +1,52 @@
+slice_name: "Logistics Summary Report"
+viz_type: table
+uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000046"
+version: "1.0.0"
+dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000040"
+description: "Per-facility stock snapshot (consumption, AMC, stock on hand) for the products that drove the most consumption in the latest reporting period. The 'top 5 most-consumed products' selection is materialized as the mart_logistics_summary mart, refreshed on every dbt build."
+certified_by: null
+certification_details: null
+is_managed_externally: false
+cache_timeout: null
+params:
+  viz_type: table
+  query_mode: raw
+  all_columns:
+    - facility_name
+    - product_code
+    - product_name
+    - period_name
+    - stock_on_hand
+    - total_consumed_quantity
+    - average_consumption
+  groupby: []
+  metrics: []
+  adhoc_filters: []
+  row_limit: 10000
+  order_by_cols:
+    - '["period_end_date", false]'
+  server_pagination: true
+  server_page_length: 25
+  show_cell_bars: false
+  color_pn: false
+  table_timestamp_format: smart_date
+  page_length: 25
+  include_search: true
+  header_font_size: 0.6
+  cell_font_size: 0.6
+  column_config:
+    facility_name:
+      customColumnName: "Facility"
+    product_code:
+      customColumnName: "Product Code"
+    product_name:
+      customColumnName: "Product"
+    period_name:
+      customColumnName: "Period"
+    stock_on_hand:
+      customColumnName: "Stock on Hand"
+    total_consumed_quantity:
+      customColumnName: "Consumption"
+    average_consumption:
+      customColumnName: "AMC"
+query_context: null
