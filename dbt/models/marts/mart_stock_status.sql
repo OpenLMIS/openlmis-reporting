@@ -104,7 +104,7 @@ select
   case
     when li.max_periods_of_stock > 6
       then 'Overstocked'
-    when li.max_periods_of_stock < 3
+    when li.max_periods_of_stock < 3 or li.max_periods_of_stock is null
       and (li.stock_on_hand = 0 or li.total_stockout_days > 0
            or li.beginning_balance = 0 or li.max_periods_of_stock = 0)
       then 'Stocked Out'
@@ -113,7 +113,7 @@ select
       and not (li.stock_on_hand = 0 or li.total_stockout_days > 0
                or li.beginning_balance = 0 or li.max_periods_of_stock = 0)
       then 'Understocked'
-    when li.max_periods_of_stock = 0
+    when li.max_periods_of_stock = 0 or li.max_periods_of_stock is null
       and not (li.stock_on_hand = 0 or li.total_stockout_days > 0
                or li.beginning_balance = 0)
       then 'Unknown'
