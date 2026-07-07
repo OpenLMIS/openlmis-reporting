@@ -11,7 +11,7 @@ cache_timeout: null
 params:
   viz_type: pie
   groupby:
-    - emergency
+    - order_type
   metric:
     expressionType: SIMPLE
     column:
