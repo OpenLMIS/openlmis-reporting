@@ -59,7 +59,7 @@ select
   JSONExtractInt(after, 'totalstockoutdays')                        as total_stockout_days,
   JSONExtractInt(after, 'averageconsumption')                       as average_consumption,
   JSONExtractInt(after, 'adjustedconsumption')                      as adjusted_consumption,
-  JSONExtractFloat(after, 'maxperiodsofstock','Nullable(Float64)')  as max_periods_of_stock,
+  JSONExtract(after, 'maxperiodsofstock', 'Nullable(Float64)')      as max_periods_of_stock,
   JSONExtractInt(after, 'calculatedorderquantity')                  as calculated_order_quantity,
   JSONExtractInt(after, 'requestedquantity')                        as requested_quantity,
   JSONExtractInt(after, 'approvedquantity')                         as approved_quantity,

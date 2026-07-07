@@ -180,6 +180,15 @@ columns:
     filterable: true
     expression: "CASE WHEN emergency = 1 THEN 'Emergency' ELSE 'Regular' END"
     description: "Order type derived from the emergency flag."
+  - column_name: requisition_status
+    verbose_name: Requisition Status
+    is_dttm: false
+    is_active: true
+    type: String
+    groupby: true
+    filterable: true
+    expression: null
+    description: "Requisition workflow status (RELEASED, APPROVED, AUTHORIZED, IN_APPROVAL, …)."
   - column_name: requisition_modified_date
     verbose_name: Requisition Modified Date
     is_dttm: true
