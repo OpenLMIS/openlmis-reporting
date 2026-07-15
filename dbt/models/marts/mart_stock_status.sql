@@ -87,7 +87,7 @@ select
   case
     when li.average_consumption > 0
     then round(li.stock_on_hand / li.average_consumption, 1)
-    else 0
+    else null   -- no/zero consumption → months-of-stock is undefined, not 0 (0 looks like a stockout)
   end                           as months_of_stock,
 
   -- computed: stockout flag (matches legacy combined_stockout logic)
@@ -101,20 +101,23 @@ select
   end                           as combined_stockout,
 
   -- computed: stock status category (matches legacy evaluation order)
+  -- stock_on_hand is nullable; coalesce(... = 0, false) treats a missing SOH as
+  -- "no stockout signal" so a null-SOH, no-signal row resolves to Unknown rather
+  -- than falling through to Adequately stocked (not(NULL) would otherwise be NULL).
   case
     when li.max_periods_of_stock > 6
       then 'Overstocked'
     when (li.max_periods_of_stock < 3 or li.max_periods_of_stock is null)
-      and (li.stock_on_hand = 0 or li.total_stockout_days > 0
+      and (coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
            or li.beginning_balance = 0 or li.max_periods_of_stock = 0)
       then 'Stocked Out'
     when li.max_periods_of_stock < 3
       and li.max_periods_of_stock > 0
-      and not (li.stock_on_hand = 0 or li.total_stockout_days > 0
+      and not (coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
                or li.beginning_balance = 0 or li.max_periods_of_stock = 0)
       then 'Understocked'
     when (li.max_periods_of_stock = 0 or li.max_periods_of_stock is null)
-      and not (li.stock_on_hand = 0 or li.total_stockout_days > 0
+      and not (coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
                or li.beginning_balance = 0)
       then 'Unknown'
     else 'Adequately stocked'
