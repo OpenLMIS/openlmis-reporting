@@ -24,7 +24,7 @@ params:
       expressionType: SQL
       sqlExpression: "requisition_status = 'RELEASED'"
       subject: requisition_status
-  time_range: "Last 10 years"
+  time_range: "Last 3 years"
   row_limit: 10000
   sort_by_metric: true
   color_scheme: supersetColors
