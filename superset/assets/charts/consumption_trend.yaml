@@ -29,7 +29,7 @@ params:
   rich_tooltip: true
   tooltipTimeFormat: "%b %Y"
   show_value: false
-  markerEnabled: true
+  markerEnabled: false
   markerSize: 6
   zoomable: true
 query_context: null
