@@ -33,7 +33,7 @@ params:
   legendType: scroll
   legendOrientation: top
   label_type: key_value_percent
-  number_format: SMART_NUMBER
+  number_format: ",.0f"
   date_format: smart_date
   show_labels_threshold: 5
   outerRadius: 70
