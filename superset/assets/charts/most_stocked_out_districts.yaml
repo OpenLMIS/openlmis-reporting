@@ -16,7 +16,7 @@ params:
   metrics:
     - expressionType: SQL
       sqlExpression: "SUM(combined_stockout)"
-      label: "Stocked Out Products"
+      label: "Stock-Out Count"
   adhoc_filters: []
   row_limit: 10000
   order_by_cols: []
