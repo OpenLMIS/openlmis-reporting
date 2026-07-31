@@ -133,6 +133,17 @@ models:
           - accepted_values:
               arguments:
                 values: [0, 1]
+      - name: schedule_type
+        description: "Reporting frequency of the program's processing schedule (Weekly / Monthly / Quarterly / BUQ), normalized from the schedule name with a period-length fallback."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Weekly
+                  - Monthly
+                  - Quarterly
+                  - BUQ
 
   - name: mart_non_reporting_facilities
     description: >
@@ -156,6 +167,13 @@ models:
               arguments:
                 values:
                   - Did not report
+      - name: schedule_type
+        description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Weekly, Monthly, Quarterly, BUQ]
 
   - name: mart_adjustments
     description: >
@@ -236,6 +254,13 @@ models:
                 values:
                   - Did not report
                   - Reported
+      - name: schedule_type
+        description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Weekly, Monthly, Quarterly, BUQ]
       - name: submitted_week_of_month
         tests:
           - accepted_values:

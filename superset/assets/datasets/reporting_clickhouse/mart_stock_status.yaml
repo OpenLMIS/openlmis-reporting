@@ -126,6 +126,15 @@ columns:
     filterable: true
     expression: null
     description: null
+  - column_name: schedule_type
+    verbose_name: Schedule Type
+    is_dttm: false
+    is_active: true
+    type: String
+    groupby: true
+    filterable: true
+    expression: null
+    description: "Reporting frequency of the program's processing schedule (Weekly / Monthly / Quarterly / BUQ), normalized from the schedule name."
   - column_name: product_code
     verbose_name: Product Code
     is_dttm: false

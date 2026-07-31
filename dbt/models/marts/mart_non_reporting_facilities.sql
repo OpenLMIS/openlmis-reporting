@@ -74,6 +74,11 @@ select
   e.period_name,
   e.period_start_date,
   e.period_end_date,
+
+  -- reporting cadence (shared macro — single source of truth across marts)
+  {{ schedule_type('e.period_start_date', 'e.period_end_date') }}
+                    as schedule_type,
+
   'Did not report'  as reporting_status
 from expected e
 left join submitted s

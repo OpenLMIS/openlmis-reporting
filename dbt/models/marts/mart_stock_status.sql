@@ -62,6 +62,11 @@ select
   pp.end_date                   as period_end_date,
   ps.name                       as schedule_name,
 
+  -- reporting cadence (Weekly / Monthly / Quarterly / BUQ) so trend charts can
+  -- compare like-for-like across programs that report at different frequencies.
+  {{ schedule_type('pp.start_date', 'pp.end_date') }}
+                                as schedule_type,
+
   -- product
   o.id                          as orderable_id,
   o.code                        as product_code,
