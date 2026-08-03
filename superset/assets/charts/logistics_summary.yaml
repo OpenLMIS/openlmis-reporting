@@ -45,8 +45,11 @@ params:
       customColumnName: "Period"
     stock_on_hand:
       customColumnName: "Stock on Hand"
+      d3NumberFormat: ",.0f"
     total_consumed_quantity:
       customColumnName: "Consumption"
+      d3NumberFormat: ",.0f"
     average_consumption:
       customColumnName: "AMC"
+      d3NumberFormat: ",.0f"
 query_context: null

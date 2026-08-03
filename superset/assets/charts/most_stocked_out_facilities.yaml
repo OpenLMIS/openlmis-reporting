@@ -17,6 +17,9 @@ params:
     - expressionType: SQL
       sqlExpression: "SUM(combined_stockout)"
       label: "Stock-Out Count"
+  column_config:
+    Stock-Out Count:
+      d3NumberFormat: ",.0f"
   adhoc_filters: []
   row_limit: 10000
   order_by_cols: []

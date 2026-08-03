@@ -17,6 +17,9 @@ params:
     - expressionType: SQL
       sqlExpression: "SUM(adjustment_quantity)"
       label: "Total Quantity"
+  column_config:
+    Total Quantity:
+      d3NumberFormat: ",.0f"
   adhoc_filters: []
   time_range: "Last month"
   row_limit: 10000
