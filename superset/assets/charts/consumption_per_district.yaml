@@ -27,7 +27,7 @@ params:
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
-  y_axis_title: Ratio
+  y_axis_title: "Consumption vs previous period (ratio)"
   y_axis_format: ".2f"
   rich_tooltip: true
   tooltipTimeFormat: "%b %Y"
