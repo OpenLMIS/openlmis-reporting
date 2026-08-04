@@ -134,7 +134,7 @@ columns:
     groupby: true
     filterable: true
     expression: null
-    description: "Reporting frequency of the program's processing schedule (Weekly / Monthly / Quarterly / BUQ), normalized from the schedule name."
+    description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
   - column_name: product_code
     verbose_name: Product Code
     is_dttm: false

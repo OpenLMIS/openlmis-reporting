@@ -134,7 +134,7 @@ models:
               arguments:
                 values: [0, 1]
       - name: schedule_type
-        description: "Reporting frequency of the program's processing schedule (Weekly / Monthly / Quarterly / BUQ), normalized from the schedule name with a period-length fallback."
+        description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
         tests:
           - not_null
           - accepted_values:

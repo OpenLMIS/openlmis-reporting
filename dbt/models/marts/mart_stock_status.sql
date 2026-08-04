@@ -3,6 +3,7 @@
     materialized='incremental',
     incremental_strategy='delete_insert',
     unique_key='line_item_id',
+    on_schema_change='append_new_columns',
     engine='MergeTree()',
     order_by='(requisition_id, line_item_id)',
     settings={'allow_nullable_key': 1}
