@@ -21,7 +21,7 @@ params:
   groupby: []
   metrics: []
   adhoc_filters: []
-  time_range: "Last 10 years"
+  time_range: "Last 3 years"
   row_limit: 10000
   order_by_cols:
     - '["total_cost", false]'

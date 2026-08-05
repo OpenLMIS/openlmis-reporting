@@ -22,14 +22,15 @@ params:
       aggregate: COUNT
       label: "Requisitions"
   adhoc_filters: []
-  row_limit: 100
+  row_limit: null
   order_by_cols: []
-  server_pagination: false
+  server_pagination: true
+  server_page_length: 25
   order_desc: true
   show_cell_bars: true
   color_pn: true
   table_timestamp_format: smart_date
-  page_length: 0
+  page_length: 25
   include_search: true
   header_font_size: 0.6
   cell_font_size: 0.6

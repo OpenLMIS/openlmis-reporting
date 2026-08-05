@@ -3,6 +3,7 @@
     materialized='incremental',
     incremental_strategy='delete_insert',
     unique_key='line_item_id',
+    on_schema_change='append_new_columns',
     engine='MergeTree()',
     order_by='(requisition_id, line_item_id)',
     settings={'allow_nullable_key': 1}
@@ -18,7 +19,8 @@
 --   stock_status: Overstocked (MoS>6), Stocked Out (MoS<3 AND stockout signal),
 --                 Understocked (MoS<3 AND no stockout signal), Unknown (MoS=0 AND no signal),
 --                 Adequately stocked (else)
--- Rolling 3-year window on requisition created_date.
+-- Rolling 3-year window on requisition created_date and period end_date
+-- (the period bound keeps backfilled old-period requisitions off trend axes).
 -- No requisition status filter (matches old view which included all statuses).
 --
 -- Incremental design:
@@ -60,6 +62,11 @@ select
   pp.start_date                 as period_start_date,
   pp.end_date                   as period_end_date,
   ps.name                       as schedule_name,
+
+  -- reporting cadence (Weekly / Monthly / Quarterly / BUQ) so trend charts can
+  -- compare like-for-like across programs that report at different frequencies.
+  {{ schedule_type('pp.start_date', 'pp.end_date') }}
+                                as schedule_type,
 
   -- product
   o.id                          as orderable_id,
@@ -160,6 +167,7 @@ left join {{ ref('stg_processing_schedules') }} ps
 left join {{ ref('stg_orderables') }} o
   on li.orderable_id = o.id
 where r.created_date >= now() - interval 3 year
+  and pp.end_date >= now() - interval 3 year
 {% if is_incremental() %}
   and li._cdc_ts > (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
 {% endif %}

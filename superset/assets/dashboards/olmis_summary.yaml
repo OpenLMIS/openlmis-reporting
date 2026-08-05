@@ -120,6 +120,31 @@ metadata:
         filterState:
           value: null
         ownState: {}
+    - id: NATIVE_FILTER-schedule-type
+      name: Schedule Type
+      filterType: filter_select
+      targets:
+        - column:
+            name: schedule_type
+          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded: []
+      controlValues:
+        enableEmptyFilter: false
+        defaultToFirstItem: false
+        multiSelect: true
+        searchAllOptions: false
+        inverseSelection: false
+      type: NATIVE_FILTER
+      description: "Filter by program reporting frequency (Weekly / Monthly / Quarterly / BUQ)."
+      cascadeParentIds: []
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value: null
+        ownState: {}
 position:
   DASHBOARD_VERSION_KEY: v2
   ROOT_ID:
