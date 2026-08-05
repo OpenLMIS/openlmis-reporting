@@ -1,5 +1,5 @@
 slice_name: "Stock Status Overview"
-viz_type: pie
+viz_type: dist_bar
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000014"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
@@ -9,28 +9,27 @@ certification_details: null
 is_managed_externally: false
 cache_timeout: null
 params:
-  viz_type: pie
+  viz_type: dist_bar
   groupby:
     - stock_status
-  metric:
-    expressionType: SIMPLE
-    column:
-      column_name: line_item_id
-      type: String
-    aggregate: COUNT
-    label: "COUNT(line_item_id)"
+  columns: []
+  metrics:
+    - expressionType: SIMPLE
+      column:
+        column_name: line_item_id
+        type: String
+      aggregate: COUNT
+      label: "COUNT(line_item_id)"
   adhoc_filters: []
   row_limit: 100
-  sort_by_metric: true
+  order_bars: true
+  order_desc: true
+  show_legend: false
+  show_bar_value: true
+  rich_tooltip: true
+  bottom_margin: auto
+  x_axis_label: "Stock Status"
+  y_axis_label: "Line Items"
+  y_axis_format: ",.0f"
   color_scheme: supersetColors
-  show_labels: true
-  show_legend: true
-  legendType: scroll
-  legendOrientation: top
-  label_type: key_value_percent
-  number_format: SMART_NUMBER
-  date_format: smart_date
-  show_labels_threshold: 5
-  outerRadius: 70
-  innerRadius: 30
 query_context: null

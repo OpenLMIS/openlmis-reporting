@@ -47,4 +47,5 @@ params:
       customColumnName: "Period"
     total_cost:
       customColumnName: "Total Cost"
+      d3NumberFormat: ",.0f"
 query_context: null

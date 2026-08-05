@@ -34,4 +34,7 @@ params:
   include_search: true
   header_font_size: 0.6
   cell_font_size: 0.6
+  column_config:
+    Requisitions:
+      d3NumberFormat: ",.0f"
 query_context: null

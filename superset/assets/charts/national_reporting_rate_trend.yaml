@@ -22,7 +22,7 @@ params:
   show_value: false
   rich_tooltip: false
   color_scheme: supersetColors
-  x_axis_title: ""
+  x_axis_title: "Period"
   y_axis_title: "Reporting Rate"
   y_axis_format: ".1%"
   markerEnabled: true

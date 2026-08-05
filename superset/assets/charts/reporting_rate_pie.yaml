@@ -1,4 +1,4 @@
-slice_name: "Reporting Rate"
+slice_name: "Reporting Rate (Last 12 Months)"
 viz_type: pie
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000031"
 version: "1.0.0"
@@ -20,6 +20,7 @@ params:
     aggregate: COUNT
     label: "Reporting Obligations"
   adhoc_filters: []
+  time_range: "Last 12 months"
   row_limit: 1000
   sort_by_metric: true
   color_scheme: supersetColors
@@ -28,7 +29,7 @@ params:
   legendType: scroll
   legendOrientation: top
   label_type: key_value_percent
-  number_format: SMART_NUMBER
+  number_format: ",.0f"
   date_format: smart_date
   show_labels_threshold: 5
   outerRadius: 70

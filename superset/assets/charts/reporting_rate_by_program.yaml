@@ -26,9 +26,10 @@ params:
   show_legend: true
   show_bar_value: false
   rich_tooltip: true
-  bottom_margin: auto
+  bottom_margin: 80
+  x_ticks_layout: staggered
   x_axis_label: Program
-  y_axis_label: Share
+  y_axis_label: "Reporting share (%)"
   y_axis_format: ".1%"
   color_scheme: supersetColors
   legendType: scroll

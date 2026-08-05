@@ -106,9 +106,34 @@ position:
     type: GRID
     id: GRID_ID
     children:
+      - ROW-region
       - ROW-list
     parents:
       - ROOT_ID
+  ROW-region:
+    type: ROW
+    id: ROW-region
+    children:
+      - CHART-region
+    parents:
+      - ROOT_ID
+      - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  CHART-region:
+    type: CHART
+    id: CHART-region
+    children: []
+    parents:
+      - ROOT_ID
+      - GRID_ID
+      - ROW-region
+    meta:
+      chartId: 0
+      height: 50
+      width: 12
+      sliceName: "Facilities per Region"
+      uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000086"
   ROW-list:
     type: ROW
     id: ROW-list
