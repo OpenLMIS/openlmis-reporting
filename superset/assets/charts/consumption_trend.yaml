@@ -3,7 +3,7 @@ viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000041"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Total adjusted consumption over time across all reporting facilities. Filter by Program/District/etc to scope."
+description: "Total adjusted consumption over time across all reporting facilities. Filter by Program/District/etc to scope. Series are split by reporting cadence (the Schedule Type column): pooling monthly and quarterly reporters into one total made the line step every third month, because the quarterly ones only contribute in the months that close a quarter. Split apart, each series is internally consistent. Switch the Time Grain filter to quarter to compare the cadences on a grain that is complete for both."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -16,18 +16,21 @@ params:
     - expressionType: SQL
       sqlExpression: "SUM(adjusted_consumption)"
       label: "Adjusted Consumption"
-  groupby: []
+  groupby:
+    - schedule_type
   adhoc_filters: []
   time_range: "Last 6 months"
   row_limit: 50000
   order_desc: true
   color_scheme: supersetColors
-  show_legend: false
+  show_legend: true
+  legendType: scroll
+  legendOrientation: top
   x_axis_title: Period
   y_axis_title: Adjusted Consumption
   y_axis_format: ",.0f"
   rich_tooltip: true
-  tooltipTimeFormat: "%b %Y"
+  tooltipTimeFormat: smart_date
   show_value: false
   markerEnabled: false
   markerSize: 6
