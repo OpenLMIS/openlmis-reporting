@@ -145,6 +145,25 @@ metadata:
         filterState:
           value: null
         ownState: {}
+    - id: NATIVE_FILTER-time-grain
+      name: Time Grain
+      filterType: filter_timegrain
+      targets:
+        - datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded: []
+      controlValues:
+        enableEmptyFilter: false
+      type: NATIVE_FILTER
+      description: "Switches the time axis on this dashboard's trend charts. Monthly and quarterly reporters only line up on a grain that is complete for both, so use quarter when comparing cadences, and month for full resolution once a single cadence is selected."
+      cascadeParentIds: []
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value: null
+        ownState: {}
     - id: NATIVE_FILTER-facility
       name: Facility
       filterType: filter_select
