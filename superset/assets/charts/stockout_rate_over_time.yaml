@@ -3,7 +3,7 @@ viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000016"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Average stockout rate across all line items per period. A line item is counted as stocked out if any of: stock_on_hand=0, total_stockout_days>0, beginning_balance=0, or max_periods_of_stock=0 (combined_stockout flag). Series are split by reporting cadence (the Schedule Type column): pooling monthly and quarterly reporters into one average made the line jump every third month, because the quarterly ones only join in the months that close a quarter. Split apart, each series is internally consistent. Switch the Time Grain filter to quarter to compare the cadences on a grain that is complete for both."
+description: "Average stockout rate across all line items per period. A line item is counted as stocked out if any of: stock_on_hand=0, total_stockout_days>0, beginning_balance=0, or max_periods_of_stock=0 (combined_stockout flag). Series are split by reporting cadence (the Schedule Type column): pooling monthly and quarterly reporters into one average made the line jump every third month, because the quarterly ones only join in the months that close a quarter. Split apart, each series is internally consistent; a quarterly cadence draws one point per quarter on the fixed monthly axis."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -19,6 +19,7 @@ params:
   groupby:
     - schedule_type
   adhoc_filters: []
+  time_range: "Last 3 years"
   row_limit: 10000
   order_desc: true
   color_scheme: supersetColors
@@ -29,7 +30,7 @@ params:
   y_axis_title: Stockout Rate
   y_axis_format: ".0%"
   rich_tooltip: true
-  tooltipTimeFormat: smart_date
+  tooltipTimeFormat: "%b %Y"
   show_value: false
   markerEnabled: true
   markerSize: 6
