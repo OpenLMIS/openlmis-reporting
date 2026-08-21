@@ -153,11 +153,16 @@ metadata:
       scope:
         rootPath:
           - ROOT_ID
-        excluded: []
+        excluded:
+          - 8202
+          - 8203
+          - 8204
+          - 8205
+          - 8206
       controlValues:
         enableEmptyFilter: false
       type: NATIVE_FILTER
-      description: "Switches the time axis on this dashboard's trend charts. Monthly and quarterly reporters only line up on a grain that is complete for both, so use quarter when comparing cadences, and month for full resolution once a single cadence is selected."
+      description: "Re-grains the Consumption Trend chart only. Month keeps full resolution and shows a quarterly cadence as one point per quarter; quarter aggregates both cadences into complete buckets so their totals compare directly. The month-by-month comparison charts keep their fixed monthly axis."
       cascadeParentIds: []
       defaultDataMask:
         extraFormData: {}
@@ -251,7 +256,7 @@ position:
       - GRID_ID
       - ROW-trend
     meta:
-      chartId: 0
+      chartId: 8201
       height: 50
       width: 12
       sliceName: "Consumption Trend"
@@ -276,7 +281,7 @@ position:
       - GRID_ID
       - ROW-yoy
     meta:
-      chartId: 0
+      chartId: 8202
       height: 50
       width: 6
       sliceName: "Consumption — Current 12 Months"
@@ -290,7 +295,7 @@ position:
       - GRID_ID
       - ROW-yoy
     meta:
-      chartId: 0
+      chartId: 8203
       height: 50
       width: 6
       sliceName: "Consumption — Previous 12 Months"
@@ -314,7 +319,7 @@ position:
       - GRID_ID
       - ROW-district
     meta:
-      chartId: 0
+      chartId: 8204
       height: 50
       width: 12
       sliceName: "Consumption per District"
@@ -338,7 +343,7 @@ position:
       - GRID_ID
       - ROW-products
     meta:
-      chartId: 0
+      chartId: 8205
       height: 50
       width: 12
       sliceName: "Most Consumed Products"
@@ -362,7 +367,7 @@ position:
       - GRID_ID
       - ROW-logistics
     meta:
-      chartId: 0
+      chartId: 8206
       height: 60
       width: 12
       sliceName: "Logistics Summary Report"

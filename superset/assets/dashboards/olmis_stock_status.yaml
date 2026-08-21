@@ -153,11 +153,13 @@ metadata:
       scope:
         rootPath:
           - ROOT_ID
-        excluded: []
+        excluded:
+          - 8101
+          - 8102
       controlValues:
         enableEmptyFilter: false
       type: NATIVE_FILTER
-      description: "Switches the time axis on this dashboard's trend charts. Monthly and quarterly reporters only line up on a grain that is complete for both, so use quarter when comparing cadences, and month for full resolution once a single cadence is selected."
+      description: "Re-grains Months of Stock Over Time and Stock Status Distribution Over Time. The default quarter is complete for monthly and quarterly reporters alike; switching to month restores full resolution, but months without quarterly reports thin out: the distribution bars dip because those facilities drop out of the count, and the months-of-stock averages are computed over the remaining reporters only. Stockout Rate Over Time keeps its own monthly axis with one series per cadence."
       cascadeParentIds: []
       defaultDataMask:
         extraFormData: {}
@@ -250,7 +252,7 @@ position:
       - GRID_ID
       - ROW-rate
     meta:
-      chartId: 0
+      chartId: 8102
       height: 50
       width: 12
       sliceName: "Stockout Rate Over Time"
@@ -274,7 +276,7 @@ position:
       - GRID_ID
       - ROW-mos
     meta:
-      chartId: 0
+      chartId: 8103
       height: 50
       width: 12
       sliceName: "Months of Stock Over Time"
@@ -298,7 +300,7 @@ position:
       - GRID_ID
       - ROW-distribution
     meta:
-      chartId: 0
+      chartId: 8104
       height: 50
       width: 12
       sliceName: "Stock Status Distribution Over Time"
@@ -322,7 +324,7 @@ position:
       - GRID_ID
       - ROW-non-reporting
     meta:
-      chartId: 0
+      chartId: 8101
       height: 50
       width: 12
       sliceName: "Non Reporting Facilities"
