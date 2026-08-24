@@ -20,8 +20,13 @@ params:
     - total_cost
   groupby: []
   metrics: []
-  adhoc_filters: []
-  time_range: "Last 3 years"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
   row_limit: 10000
   order_by_cols:
     - '["total_cost", false]'
