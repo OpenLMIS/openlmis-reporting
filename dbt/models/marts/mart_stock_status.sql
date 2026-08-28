@@ -15,10 +15,15 @@
 -- to produce a single denormalized table for BI queries.
 --
 -- Logic matches the legacy stock_status_and_consumption materialized view:
---   combined_stockout: 1 if SOH=0 OR stockout_days>0 OR beginning_balance=0 OR MoS=0
---   stock_status: Overstocked (MoS>6), Stocked Out (MoS<3 AND stockout signal),
---                 Understocked (MoS<3 AND no stockout signal), Unknown (MoS=0 AND no signal),
---                 Adequately stocked (else)
+--   combined_stockout: 1 if SOH=0 OR stockout_days>0 (tightened vs legacy,
+--   which also flagged beginning_balance=0 / MoS=0 bookkeeping gaps)
+--   stock_status: Stocked Out (SOH=0 or stockout days), else bucketed by the
+--                 computed months_of_stock: Understocked (<3), Adequately
+--                 stocked (3-6), Overstocked (>6) - the legacy thresholds -
+--                 or Unknown when consumption is zero/missing so MoS is
+--                 undefined. The legacy view keyed these buckets off
+--                 max_periods_of_stock, which is 0/NULL on every real line,
+--                 collapsing everything into Stocked Out/Unknown.
 -- Rolling 3-year window on requisition created_date and period end_date
 -- (the period bound keeps backfilled old-period requisitions off trend axes).
 -- No requisition status filter (matches old view which included all statuses).
@@ -97,37 +102,34 @@ select
     else null   -- no/zero consumption → months-of-stock is undefined, not 0 (0 looks like a stockout)
   end                           as months_of_stock,
 
-  -- computed: stockout flag (matches legacy combined_stockout logic)
+  -- computed: stockout flag. Deliberately tighter than the legacy
+  -- combined_stockout (which also counted beginning_balance = 0 and
+  -- max_periods_of_stock = 0): a missing opening balance is a bookkeeping
+  -- gap, not a stockout, and on migrated history it flagged every line,
+  -- pinning the stockout-rate charts at 100%. Only direct stockout
+  -- evidence counts: zero stock on hand or reported stockout days.
   case
     when li.stock_on_hand = 0
       or li.total_stockout_days > 0
-      or li.beginning_balance = 0
-      or li.max_periods_of_stock = 0
     then 1
     else 0
   end                           as combined_stockout,
 
-  -- computed: stock status category (matches legacy evaluation order)
-  -- stock_on_hand is nullable; coalesce(... = 0, false) treats a missing SOH as
-  -- "no stockout signal" so a null-SOH, no-signal row resolves to Unknown rather
-  -- than falling through to Adequately stocked (not(NULL) would otherwise be NULL).
+  -- computed: stock status category. A direct stockout signal wins; otherwise
+  -- the bucket comes from months_of_stock (SOH / average consumption) with the
+  -- legacy thresholds. Zero/missing consumption leaves MoS undefined -> Unknown
+  -- (mirrors the months_of_stock expression above; a bare division would make
+  -- those rows look adequately stocked).
   case
-    when li.max_periods_of_stock > 6
-      then 'Overstocked'
-    when (li.max_periods_of_stock < 3 or li.max_periods_of_stock is null)
-      and (coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
-           or li.beginning_balance = 0 or li.max_periods_of_stock = 0)
+    when coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
       then 'Stocked Out'
-    when li.max_periods_of_stock < 3
-      and li.max_periods_of_stock > 0
-      and not (coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
-               or li.beginning_balance = 0 or li.max_periods_of_stock = 0)
-      then 'Understocked'
-    when (li.max_periods_of_stock = 0 or li.max_periods_of_stock is null)
-      and not (coalesce(li.stock_on_hand = 0, false) or li.total_stockout_days > 0
-               or li.beginning_balance = 0)
-      then 'Unknown'
-    else 'Adequately stocked'
+    when li.average_consumption > 0 and li.stock_on_hand is not null then
+      case
+        when li.stock_on_hand / li.average_consumption > 6 then 'Overstocked'
+        when li.stock_on_hand / li.average_consumption < 3 then 'Understocked'
+        else 'Adequately stocked'
+      end
+    else 'Unknown'
   end                           as stock_status,
 
   -- order-related fields (Phase 6 Orders dashboard)
