@@ -19,8 +19,13 @@ params:
       type: String
     aggregate: COUNT
     label: "Line Items"
-  adhoc_filters: []
-  time_range: "Last month"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_latest_complete_month
+      comparator: 1
   row_limit: 25
   sort_by_metric: true
   color_scheme: supersetColors

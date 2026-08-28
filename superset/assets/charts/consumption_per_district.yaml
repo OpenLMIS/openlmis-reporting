@@ -14,12 +14,23 @@ params:
   time_grain_sqla: P1M
   metrics:
     - expressionType: SQL
-      sqlExpression: "CASE WHEN SUM(adjusted_consumption) != 0 THEN SUM(total_consumed_quantity) / SUM(adjusted_consumption) ELSE 0 END"
+      sqlExpression: "CASE WHEN SUM(adjusted_consumption) != 0 THEN SUM(total_consumed_quantity) / SUM(adjusted_consumption) ELSE NULL END"
       label: "Consumption / Adjusted Consumption"
   groupby:
     - zone_name
-  adhoc_filters: []
-  time_range: "Last 12 months"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   row_limit: 10000
   order_desc: true
   color_scheme: supersetColors
@@ -27,9 +38,14 @@ params:
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
-  y_axis_title: "Consumption vs previous period (ratio)"
+  x_axis_title_margin: 30
+  # Short enough to fit vertically inside a half-height card - the full
+  # wording overflowed into the legend row.
+  y_axis_title: "Consumed / adjusted ratio"
+  y_axis_title_margin: 60
   y_axis_format: ".2f"
   rich_tooltip: true
+  showTooltipTotal: false
   tooltipTimeFormat: "%b %Y"
   show_value: false
   markerEnabled: false

@@ -10,14 +10,30 @@ is_managed_externally: false
 cache_timeout: null
 params:
   viz_type: pivot_table_v2
+  # Month rows as YYYY-MM strings: chronological order for free (period_name
+  # sorted alphabetically) and weekly periods roll up into their month.
+  # An SQL expression because pivot rows ignore the chart time grain.
   groupbyRows:
-    - period_name
+    - label: Month
+      sqlExpression: "formatDateTime(toStartOfMonth(period_end_date), '%Y-%m')"
+      expressionType: SQL
   groupbyColumns:
     - program_name
   metrics:
     - reporting_rate
-  adhoc_filters: []
-  time_range: "Last 12 months"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   row_limit: 10000
   aggregateFunction: Average
   rowOrder: key_a_to_z

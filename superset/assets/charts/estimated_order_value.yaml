@@ -1,5 +1,5 @@
 slice_name: "Estimated Order Value"
-viz_type: dist_bar
+viz_type: echarts_timeseries_bar
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000063"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
@@ -9,9 +9,9 @@ certification_details: null
 is_managed_externally: false
 cache_timeout: null
 params:
-  viz_type: dist_bar
-  groupby:
-    - zone_name
+  viz_type: echarts_timeseries_bar
+  x_axis: zone_name
+  groupby: []
   metrics:
     - expressionType: SQL
       sqlExpression: "SUM(total_cost)"
@@ -21,17 +21,33 @@ params:
       expressionType: SQL
       sqlExpression: "total_received_quantity > 0"
       subject: total_received_quantity
-  time_range: "Last quarter"
-  row_limit: 10000
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last quarter"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   order_desc: true
+  row_limit: 10000
   color_scheme: supersetColors
   show_legend: true
   legendType: scroll
   legendOrientation: top
-  bottom_margin: auto
-  x_axis_label: District
-  y_axis_label: Total Order Cost
+  x_axis_title: District
+  x_axis_title_margin: 60
+  xAxisLabelRotation: 45
+  y_axis_title: Total Order Cost
+  y_axis_title_margin: 30
+  y_axis_title_position: Top
   y_axis_format: ",.0f"
-  show_bar_value: false
+  truncateYAxis: false
   rich_tooltip: true
+  show_value: false
+  zoomable: false
 query_context: null

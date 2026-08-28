@@ -17,8 +17,13 @@ params:
     - expressionType: SQL
       sqlExpression: "SUM(adjusted_consumption)"
       label: "Adjusted Consumption"
-  adhoc_filters: []
-  time_range: "Last month"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_latest_complete_month
+      comparator: 1
   row_limit: 10000
   order_by_cols: []
   server_pagination: false

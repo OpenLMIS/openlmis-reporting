@@ -26,8 +26,13 @@ params:
       d3NumberFormat: ",.0f"
     Total Quantity:
       d3NumberFormat: ",.0f"
-  adhoc_filters: []
-  time_range: "Last month"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_latest_complete_month
+      comparator: 1
   row_limit: 10000
   order_by_cols: []
   server_pagination: false

@@ -25,7 +25,18 @@ params:
       subject: reporting_status
       operator: "=="
       comparator: "Reported"
-  time_range: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   row_limit: 10000
   sort_by_metric: true
   color_scheme: supersetColors
