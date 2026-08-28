@@ -34,8 +34,15 @@ models:
       - reconcile_with_source:
           arguments:
             source_table: requisition.requisitions
-            source_pk: id
             target_pk: requisition_id
+            source_query: |
+              select
+                count() as row_count,
+                sum(cityHash64(r.id)) as pk_hash
+              from {{ source_pg('requisition', 'requisitions') }} r
+              inner join {{ source_pg('referencedata', 'processing_periods') }} pp
+                on r.processingperiodid = pp.id
+              where pp.enddate >= now() - interval 3 year
           config:
             tags: [reconcile]
     columns:
@@ -90,7 +97,10 @@ models:
               from {{ source_pg('requisition', 'requisition_line_items') }} li
               inner join {{ source_pg('requisition', 'requisitions') }} r
                 on li.requisitionid = r.id
+              inner join {{ source_pg('referencedata', 'processing_periods') }} pp
+                on r.processingperiodid = pp.id
               where r.createddate >= now() - interval 3 year
+                and pp.enddate >= now() - interval 3 year
           config:
             tags: [reconcile]
     columns:
@@ -199,7 +209,10 @@ models:
                 on sa.requisitionlineitemid = li.id
               inner join {{ source_pg('requisition', 'requisitions') }} r
                 on li.requisitionid = r.id
+              inner join {{ source_pg('referencedata', 'processing_periods') }} pp
+                on r.processingperiodid = pp.id
               where r.createddate >= now() - interval 3 year
+                and pp.enddate >= now() - interval 3 year
           config:
             tags: [reconcile]
     columns:
@@ -267,3 +280,34 @@ models:
               arguments:
                 values: [1, 2, 3, 4, 5]
                 quote: false
+
+  - name: mart_month_completeness
+    description: >
+      Month-completeness flags per mart family (stock / reporting /
+      adjustments). A month is complete when its activity reaches
+      var('month_completeness_threshold', 0.8) of the best of the three
+      preceding months; months with no history to compare against count as
+      complete. The trend charts hide incomplete months and the
+      latest-month snapshots anchor on is_latest_complete.
+    columns:
+      - name: family
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - stock
+                  - reporting
+                  - adjustments
+      - name: is_complete
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: is_latest_complete
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
