@@ -39,7 +39,10 @@ top_products as (
       ) as consumption_rank
     from {{ ref('mart_stock_status') }}
     cross join latest_month
+    -- Bound on both sides: >= alone would let the structurally partial
+    -- months AFTER the complete anchor month leak into the ranking.
     where period_end_date >= latest_month.month_start
+      and period_end_date < addMonths(latest_month.month_start, 1)
       and total_consumed_quantity is not null
     group by program_name, product_name
   )
