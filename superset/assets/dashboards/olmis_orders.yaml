@@ -89,7 +89,9 @@ metadata:
         inverseSelection: false
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+        - NATIVE_FILTER-region
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -112,9 +114,13 @@ metadata:
         multiSelect: true
         searchAllOptions: false
         inverseSelection: false
+        sortAscending: false
+        sortMetric: latest_period_end
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+        - NATIVE_FILTER-schedule-type
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -139,7 +145,8 @@ metadata:
         inverseSelection: false
       type: NATIVE_FILTER
       description: "Filter by program reporting frequency (Weekly / Monthly / Quarterly / BUQ)."
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -160,11 +167,14 @@ metadata:
         enableEmptyFilter: false
         defaultToFirstItem: false
         multiSelect: true
-        searchAllOptions: false
+        searchAllOptions: true
         inverseSelection: false
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+        - NATIVE_FILTER-region
+        - NATIVE_FILTER-district
       defaultDataMask:
         extraFormData: {}
         filterState:
