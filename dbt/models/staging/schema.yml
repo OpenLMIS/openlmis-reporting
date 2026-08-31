@@ -187,26 +187,6 @@ models:
         tests:
           - not_null
 
-  - name: stg_program_orderables
-    description: >
-      Program-orderable catalog assignments: which products belong to which
-      programs. One row per source assignment row; a product can belong to
-      several programs, and assignments exist per orderable version.
-    columns:
-      - name: id
-        tests:
-          - not_null
-          - unique
-      - name: program_id
-        tests:
-          - not_null
-      - name: orderable_id
-        tests:
-          - not_null
-      - name: active
-        tests:
-          - not_null
-
   - name: stg_supported_programs
     description: "Facility-program assignments: which facilities are active for which programs"
     columns:
