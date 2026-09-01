@@ -24,7 +24,10 @@
 --     our test data shows that resolution only matches ~6/14 rows in
 --     mw-distro because modern OpenLMIS uses sar.reasonid (global FK)
 --     as the join key. We join via reason_id (FK).
--- Rolling 3-year window on requisition.created_date (matches legacy).
+-- Rolling 3-year window on requisition.created_date AND the processing
+-- period's end_date (the created_date alone is a write timestamp, so
+-- migrated history with recent write dates kept a decade of old periods
+-- alive in the Period filters).
 --
 -- Incremental design: same shape as mart_stock_status. unique_key=
 -- adjustment_id, watermark on stg_stock_adjustments._cdc_ts. Dimension
@@ -129,6 +132,7 @@ left join submitted_or_later sl
 left join {{ ref('stg_stock_adjustment_reasons') }} sar
   on sar.reason_id = sa.reason_id
 where r.created_date >= now() - interval 3 year
+  and pp.end_date >= now() - interval 3 year
 {% if is_incremental() %}
   and sa._cdc_ts > (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
 {% endif %}

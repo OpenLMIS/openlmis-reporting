@@ -1,37 +1,53 @@
-slice_name: "Reporting Rate (Last 12 Months)"
-viz_type: pie
+slice_name: "Facilities Reporting Rate (Last 12 Months)"
+viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000031"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
-description: "Share of facility-program-period reporting obligations by outcome (Reported vs Did not report)."
+description: "Share of facility reporting obligations fulfilled per month, one line per program - the same view as the Reporting Rate Trend. Replaces the former Reported/Did-not-report pie, which showed a single static share that was hard to relate to facility counts. One obligation = one facility-program-period combination expected to report."
 certified_by: null
 certification_details: null
 is_managed_externally: false
 cache_timeout: null
 params:
-  viz_type: pie
+  viz_type: echarts_timeseries_line
+  x_axis: period_end_date
+  time_grain_sqla: P1M
+  metrics:
+    - expressionType: SQL
+      sqlExpression: "AVG(CASE WHEN reporting_status = 'Reported' THEN 1.0 ELSE 0.0 END)"
+      label: "Reporting Rate"
   groupby:
-    - reporting_status
-  metric:
-    expressionType: SIMPLE
-    column:
-      column_name: facility_id
-      type: String
-    aggregate: COUNT
-    label: "Reporting Obligations"
-  adhoc_filters: []
-  time_range: "Last 12 months"
-  row_limit: 1000
-  sort_by_metric: true
+    - program_name
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
+  row_limit: 10000
+  order_desc: true
   color_scheme: supersetColors
-  show_labels: true
   show_legend: true
   legendType: scroll
   legendOrientation: top
-  label_type: key_value_percent
-  number_format: ",.0f"
-  date_format: smart_date
-  show_labels_threshold: 5
-  outerRadius: 70
-  innerRadius: 30
+  x_axis_title: Period
+  x_axis_title_margin: 30
+  y_axis_title: Reporting Rate
+  y_axis_title_margin: 30
+  y_axis_title_position: Top
+  y_axis_format: ".0%"
+  rich_tooltip: true
+  showTooltipTotal: false
+  tooltipTimeFormat: "%b %Y"
+  show_value: false
+  markerEnabled: true
+  markerSize: 6
+  zoomable: true
 query_context: null

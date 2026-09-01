@@ -1,4 +1,4 @@
-slice_name: "National Reporting Rate - Last 12 Months"
+slice_name: "National Reporting Rate (Last 12 Months)"
 viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000085"
 version: "1.0.0"
@@ -15,15 +15,29 @@ params:
   metrics:
     - reporting_rate
   groupby: []
-  adhoc_filters: []
-  time_range: "Last 12 months"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   row_limit: 10000
   show_legend: false
   show_value: false
   rich_tooltip: false
   color_scheme: supersetColors
   x_axis_title: "Period"
+  x_axis_title_margin: 30
   y_axis_title: "Reporting Rate"
+  y_axis_title_margin: 30
+  y_axis_title_position: Top
   y_axis_format: ".1%"
   markerEnabled: true
   markerSize: 6

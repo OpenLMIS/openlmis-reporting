@@ -3,7 +3,7 @@ viz_type: table
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000046"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000040"
-description: "Per-facility stock snapshot (consumption, AMC, stock on hand) for the products that drove the most consumption in the latest reporting period. The 'top 5 most-consumed products' selection is materialized as the mart_logistics_summary mart, refreshed on every dbt build."
+description: "Per-facility stock snapshot (consumption, AMC, stock on hand) for the five most-consumed products of each program in the latest reporting period, so the report stays populated whichever program the dashboard is filtered to. The selection is materialized as the mart_logistics_summary mart, refreshed on every dbt build."
 certified_by: null
 certification_details: null
 is_managed_externally: false

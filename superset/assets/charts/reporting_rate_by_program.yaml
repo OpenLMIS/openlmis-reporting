@@ -1,39 +1,51 @@
 slice_name: "Reporting Rate by Program"
-viz_type: dist_bar
+viz_type: echarts_timeseries_bar
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000081"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
-description: "Per-program reporting rate as a 100% stacked bar (Reported vs Did not report). Replaces the legacy row of six hardcoded per-program pies — auto-adapts to whichever programs the adopter has configured."
+description: "Per-program reporting rate as a 100% stacked bar (Reported vs Did not report). Replaces the legacy row of six hardcoded per-program pies — auto-adapts to whichever programs the adopter has configured. Counts facility-program-period reporting obligations, not facilities."
 certified_by: null
 certification_details: null
 is_managed_externally: false
 cache_timeout: null
 params:
-  viz_type: dist_bar
+  viz_type: echarts_timeseries_bar
+  x_axis: program_name
   groupby:
-    - program_name
-  columns:
     - reporting_status
   metrics:
     - expressionType: SQL
       sqlExpression: "COUNT(*)"
       label: "Obligations"
-  adhoc_filters: []
-  contribution: true
-  bar_stacked: true
-  order_bars: true
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 12 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
+  contributionMode: row
+  stack: Stack
   order_desc: false
-  show_legend: true
-  show_bar_value: false
-  rich_tooltip: true
-  bottom_margin: 80
-  x_ticks_layout: staggered
-  x_axis_label: Program
-  y_axis_label: "Reporting share (%)"
-  y_axis_format: ".1%"
+  row_limit: 10000
   color_scheme: supersetColors
+  show_legend: true
   legendType: scroll
   legendOrientation: top
-  row_limit: 10000
-  time_range: "Last 12 months"
+  xAxisLabelRotation: 45
+  y_axis_title: "Reporting share (%)"
+  y_axis_title_margin: 30
+  y_axis_title_position: Top
+  y_axis_format: ".1%"
+  truncateYAxis: false
+  rich_tooltip: true
+  showTooltipTotal: false
+  show_value: false
+  zoomable: false
 query_context: null

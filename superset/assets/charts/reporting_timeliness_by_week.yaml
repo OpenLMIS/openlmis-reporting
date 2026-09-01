@@ -26,6 +26,18 @@ params:
       expressionType: SQL
       sqlExpression: "reporting_status = 'Reported'"
       subject: reporting_status
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   row_limit: 10000
   order_desc: false
   color_scheme: supersetColors
@@ -33,7 +45,9 @@ params:
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
+  x_axis_title_margin: 30
   y_axis_title: Submitted Reports
+  y_axis_title_margin: 60
   y_axis_format: ",.0f"
   stack: stack
   rich_tooltip: true

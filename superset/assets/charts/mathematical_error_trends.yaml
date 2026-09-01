@@ -10,7 +10,7 @@ is_managed_externally: false
 cache_timeout: null
 params:
   viz_type: echarts_timeseries_line
-  x_axis: status_change_date
+  x_axis: period_end_date
   time_grain_sqla: P1M
   metrics:
     - expressionType: SQL
@@ -23,17 +23,32 @@ params:
       expressionType: SQL
       sqlExpression: "lower(reason_name) IN ('positive mathematical error', 'negative mathematical error')"
       subject: reason_name
-  time_range: "Last 11 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 11 months"
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
   row_limit: 10000
   order_desc: true
   color_scheme: supersetColors
   show_legend: true
   legendType: scroll
   legendOrientation: top
-  x_axis_title: Status Change Date
+  x_axis_title: Period
+  x_axis_title_margin: 30
   y_axis_title: Adjusted Quantity
+  y_axis_title_margin: 30
+  y_axis_title_position: Top
   y_axis_format: ",.0f"
   rich_tooltip: true
+  showTooltipTotal: false
   tooltipTimeFormat: "%b %Y"
   show_value: false
   markerEnabled: true

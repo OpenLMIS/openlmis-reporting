@@ -89,7 +89,9 @@ metadata:
         inverseSelection: false
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+        - NATIVE_FILTER-region
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -112,9 +114,13 @@ metadata:
         multiSelect: true
         searchAllOptions: false
         inverseSelection: false
+        sortAscending: false
+        sortMetric: latest_period_end
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+        - NATIVE_FILTER-schedule-type
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -139,7 +145,8 @@ metadata:
         inverseSelection: false
       type: NATIVE_FILTER
       description: "Filter by program reporting frequency (Weekly / Monthly / Quarterly / BUQ)."
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-program
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -187,7 +194,7 @@ position:
       chartId: 0
       height: 50
       width: 4
-      sliceName: "Reporting Rate"
+      sliceName: "Facilities Reporting Rate"
       uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000031"
   CHART-timeliness:
     type: CHART
@@ -239,7 +246,7 @@ position:
       chartId: 0
       height: 50
       width: 12
-      sliceName: "National Reporting Rate - Last 12 Months"
+      sliceName: "National Reporting Rate (Last 12 Months)"
       uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000085"
   ROW-pivot:
     type: ROW

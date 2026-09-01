@@ -108,7 +108,42 @@ columns:
     filterable: true
     expression: null
     description: null
+  - column_name: parent_zone_name
+    verbose_name: Region
+    is_dttm: false
+    is_active: true
+    type: String
+    groupby: true
+    filterable: true
+    expression: null
+    description: "Parent geographic zone of the facility's district"
+  - column_name: period_name
+    verbose_name: Period
+    is_dttm: false
+    is_active: true
+    type: String
+    groupby: true
+    filterable: true
+    expression: null
+    description: null
+  - column_name: period_end_date
+    verbose_name: Period End Date
+    is_dttm: true
+    is_active: true
+    type: Date
+    groupby: true
+    filterable: true
+    expression: null
+    description: null
 metrics:
+  - metric_name: latest_period_end
+    verbose_name: "Latest Period End"
+    metric_type: null
+    expression: "MAX(period_end_date)"
+    description: "Most recent period end date; used by the dashboard Period filter to sort its values chronologically."
+    d3format: null
+    extra: null
+    warning_text: null
   - metric_name: count
     verbose_name: "COUNT(*)"
     metric_type: count

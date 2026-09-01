@@ -3,12 +3,22 @@ uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000050"
 version: "1.0.0"
 database_uuid: "b1a2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
 schema: curated
-main_dttm_col: status_change_date
+main_dttm_col: period_end_date
 description: "One row per stock_adjustment line, joined to facility/program/period/product dimensions and the latest non-INITIATED/SUBMITTED/SKIPPED status change. Replaces the legacy `adjustments` MV."
 default_endpoint: null
 offset: 0
 cache_timeout: null
-sql: null
+sql: |
+  select
+    s.*,
+    if(f.family = '', 1, f.is_complete)        as in_complete_month,
+    if(f.family = '', 0, f.is_latest_complete) as in_latest_complete_month
+  from curated.mart_adjustments s
+  left join (
+    select family, month, is_complete, is_latest_complete
+    from curated.mart_month_completeness
+    where family = 'adjustments'
+  ) f on f.month = toStartOfMonth(s.period_end_date)
 params: null
 template_params: null
 filter_select_enabled: true
@@ -162,7 +172,33 @@ columns:
     filterable: true
     expression: null
     description: "Quantity signed by reason_type: positive for CREDIT, negative for DEBIT. Sum gives net stock movement."
+  - column_name: in_complete_month
+    verbose_name: In Complete Month
+    is_dttm: false
+    is_active: true
+    type: UInt8
+    groupby: true
+    filterable: true
+    expression: null
+    description: "1 when the row's month reached the completeness threshold (see mart_month_completeness); trend charts hide incomplete trailing months through this flag"
+  - column_name: in_latest_complete_month
+    verbose_name: In Latest Complete Month
+    is_dttm: false
+    is_active: true
+    type: UInt8
+    groupby: true
+    filterable: true
+    expression: null
+    description: "1 for rows in the most recent complete reporting month; the latest-month snapshot charts anchor on it"
 metrics:
+  - metric_name: latest_period_end
+    verbose_name: "Latest Period End"
+    metric_type: null
+    expression: "MAX(period_end_date)"
+    description: "Most recent period end date; used by the dashboard Period filters to sort their values chronologically."
+    d3format: null
+    extra: null
+    warning_text: null
   - metric_name: count
     verbose_name: "COUNT(*)"
     metric_type: count

@@ -64,7 +64,8 @@ metadata:
         inverseSelection: false
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-region
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -89,7 +90,9 @@ metadata:
         inverseSelection: false
       type: NATIVE_FILTER
       description: ""
-      cascadeParentIds: []
+      cascadeParentIds:
+        - NATIVE_FILTER-region
+        - NATIVE_FILTER-district
       defaultDataMask:
         extraFormData: {}
         filterState:
