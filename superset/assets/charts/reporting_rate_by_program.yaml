@@ -3,7 +3,7 @@ viz_type: echarts_timeseries_bar
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000081"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
-description: "Per-program reporting rate as a 100% stacked bar (Reported vs Did not report). Replaces the legacy row of six hardcoded per-program pies — auto-adapts to whichever programs the adopter has configured. Counts facility-program-period reporting obligations, not facilities."
+description: "Per-program reporting outcome as a 100% stacked bar: Reported, Skipped, and Did not report. Skipped means the facility deliberately skipped that period, which every program in the data is configured to allow; separating it stops a deliberate skip reading as a delinquent facility. Counts facility-program-period reporting obligations, not facilities. The reporting rate shown elsewhere still counts a skip as a miss, so the shares here will not add up to it. Replaces the legacy row of six hardcoded per-program pies and auto-adapts to whichever programs the adopter has configured."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -23,7 +23,7 @@ params:
       operator: TEMPORAL_RANGE
       operatorId: TEMPORAL_RANGE
       subject: period_end_date
-      comparator: "Last 12 months"
+      comparator: "Last 3 years"
     - clause: WHERE
       expressionType: SIMPLE
       operator: ==
@@ -43,6 +43,7 @@ params:
   y_axis_title_margin: 30
   y_axis_title_position: Top
   y_axis_format: ".1%"
+  y_axis_bounds: [null, 1]
   truncateYAxis: false
   rich_tooltip: true
   showTooltipTotal: false

@@ -40,12 +40,16 @@ params:
       comparator: 1
   row_limit: 10000
   order_desc: false
+  sort_series_type: name
+  sort_series_ascending: true
   color_scheme: supersetColors
   show_legend: true
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
-  x_axis_title_margin: 30
+  x_axis_title_margin: 40
+  x_axis_time_format: "%b '%y"
+  xAxisLabelRotation: 30
   y_axis_title: Submitted Reports
   y_axis_title_margin: 60
   y_axis_format: ",.0f"
@@ -53,5 +57,5 @@ params:
   rich_tooltip: true
   tooltipTimeFormat: "%b %Y"
   show_value: false
-  zoomable: true
+  zoomable: false
 query_context: null

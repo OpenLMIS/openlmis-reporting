@@ -1,9 +1,9 @@
-slice_name: "Indicator Summary: Reporting Rate by Program (Last 12 Months)"
+slice_name: "Indicator Summary: Reporting Rate by Program"
 viz_type: pivot_table_v2
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000083"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
-description: "Reporting rate per program × period over the last 12 months. Rows = period, Columns = program."
+description: "Reporting rate per program × period. Rows = period, Columns = program."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -27,7 +27,7 @@ params:
       operator: TEMPORAL_RANGE
       operatorId: TEMPORAL_RANGE
       subject: period_end_date
-      comparator: "Last 12 months"
+      comparator: "Last 3 years"
     - clause: WHERE
       expressionType: SIMPLE
       operator: ==

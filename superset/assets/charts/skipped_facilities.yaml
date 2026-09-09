@@ -1,0 +1,45 @@
+slice_name: "Skipped Facilities"
+viz_type: table
+uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000087"
+version: "1.0.0"
+dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000020"
+description: "Facility-program-periods the facility deliberately skipped, as opposed to going silent. A skip is a legitimate outcome: every program in the data is configured with periods_skippable. Companion to Non Reporting Facilities, which still lists these rows so no count there moves; this table is the subset with the skip flag set."
+certified_by: null
+certification_details: null
+is_managed_externally: false
+cache_timeout: null
+params:
+  viz_type: table
+  groupby:
+    - facility_name
+    - program_name
+    - period_name
+    - zone_name
+  metrics:
+    - expressionType: SIMPLE
+      column:
+        column_name: was_skipped
+        type: BIGINT
+      aggregate: COUNT
+      label: "Skipped Periods"
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: "=="
+      operatorId: EQUALS
+      subject: was_skipped
+      comparator: 1
+  row_limit: null
+  order_by_cols: []
+  server_pagination: true
+  server_page_length: 25
+  order_desc: true
+  show_cell_bars: false
+  color_pn: false
+  table_timestamp_format: smart_date
+  page_length: 25
+  include_search: true
+  column_config:
+    Skipped Periods:
+      d3NumberFormat: ",.0f"
+query_context: null
