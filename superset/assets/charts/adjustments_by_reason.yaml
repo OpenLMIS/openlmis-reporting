@@ -19,9 +19,15 @@ params:
   adhoc_filters:
     - clause: WHERE
       expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
+    - clause: WHERE
+      expressionType: SIMPLE
       operator: ==
       operatorId: EQUALS
-      subject: in_latest_complete_month
+      subject: in_complete_month
       comparator: 1
   row_limit: 1000
   sort_by_metric: true
@@ -33,7 +39,7 @@ params:
   label_type: key_value_percent
   number_format: ",.0f"
   date_format: smart_date
-  show_labels_threshold: 5
+  show_labels_threshold: 1
   outerRadius: 70
   innerRadius: 30
 query_context: null
