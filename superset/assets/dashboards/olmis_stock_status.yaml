@@ -211,7 +211,8 @@ metadata:
       scope:
         rootPath:
           - ROOT_ID
-        excluded: []
+        excluded:
+          - 8101
       controlValues:
         enableEmptyFilter: false
         defaultToFirstItem: false
