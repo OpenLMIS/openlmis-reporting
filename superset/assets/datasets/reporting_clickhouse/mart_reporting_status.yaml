@@ -4,7 +4,7 @@ version: "1.0.0"
 database_uuid: "b1a2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
 schema: curated
 main_dttm_col: period_end_date
-description: "Reporting outcome per (facility × program × period) — both Reported and Did not report rows, plus submission timing for the timeliness chart."
+description: "Reporting outcome per (facility × program × period) — Reported, Skipped and Did not report rows, plus submission timing for the timeliness chart."
 default_endpoint: null
 offset: 0
 cache_timeout: null
@@ -126,7 +126,7 @@ columns:
     groupby: true
     filterable: true
     expression: null
-    description: null
+    description: "Reported when a SUBMITTED requisition exists for this facility, program and period; Skipped when the facility deliberately skipped the period instead; Did not report otherwise. Every program in the data has periods_skippable set, so a skip is a legitimate outcome, not a data error."
   - column_name: submitted_date
     verbose_name: Submitted At
     is_dttm: true
@@ -181,7 +181,52 @@ columns:
     filterable: true
     expression: null
     description: "1 for rows in the most recent complete reporting month; the latest-month snapshot charts anchor on it"
+  - column_name: on_time_through_day
+    verbose_name: On time through day
+    is_dttm: false
+    is_active: true
+    type: BIGINT
+    groupby: true
+    filterable: true
+    expression: "toDayOfMonth(submitted_date)"
+    description: "Day of the month a report was submitted. Exists so the dashboard can offer an adjustable on-time cut-off; the filter that targets it supplies the boundary and does not itself filter rows."
+  - column_name: late_through_day
+    verbose_name: Late through day
+    is_dttm: false
+    is_active: true
+    type: BIGINT
+    groupby: true
+    filterable: true
+    expression: "toDayOfMonth(submitted_date)"
+    description: "Day of the month a report was submitted. Exists so the dashboard can offer an adjustable late cut-off; the filter that targets it supplies the boundary and does not itself filter rows."
+  - column_name: submission_timeliness
+    verbose_name: Submission Timeliness
+    is_dttm: false
+    is_active: true
+    type: String
+    groupby: true
+    filterable: true
+    expression: |
+      {% set a = (filter_values('on_time_through_day', remove_filter=True) or [10])[0] | int(10) %}
+      {% set b = (filter_values('late_through_day', remove_filter=True) or [15])[0] | int(15) %}
+      {# the two cut-offs are read as a range, so an on-time day set later than the late day
+         cannot silently delete the middle bucket #}
+      {% set lo = [a, b] | min %}
+      {% set hi = [a, b] | max %}
+      CASE WHEN submitted_date IS NULL THEN NULL
+           WHEN toDayOfMonth(submitted_date) <= {{ lo }} THEN 'On time'
+           WHEN toDayOfMonth(submitted_date) <= {{ hi }} THEN 'Late'
+           ELSE 'Extreme late' END
+    description: "When in the month the report was submitted, against the cut-offs set in the dashboard filter bar. Defaults to 1st to 10th on time, 11th to 15th late, 16th onwards extreme late. Null for obligations with no submission date, which are the non-reports rather than reports of unknown date, so charts on this column filter to Reported first."
 metrics:
+  - metric_name: submission_day
+    verbose_name: "Submission day of month"
+    metric_type: null
+    expression: "MIN(toDayOfMonth(submitted_date))"
+    description: "The day of the month itself, used only to sort the timeliness cut-off filters numerically instead of alphabetically."
+    d3format: ",.0f"
+    extra: null
+    warning_text: null
   - metric_name: latest_period_end
     verbose_name: "Latest Period End"
     metric_type: null
@@ -196,6 +241,14 @@ metrics:
     expression: "COUNT(*)"
     description: Total reporting obligations (rows)
     d3format: ",.0f"
+    extra: null
+    warning_text: null
+  - metric_name: reporting_rate_excl_skipped
+    verbose_name: "Reporting Rate (excl. skipped)"
+    metric_type: null
+    expression: "AVG(CASE WHEN reporting_status = 'Skipped' THEN NULL WHEN reporting_status = 'Reported' THEN 1.0 ELSE 0.0 END)"
+    description: "Alternative to reporting_rate that drops deliberately skipped periods from the denominator instead of counting them as misses (ClickHouse AVG ignores NULLs). Defined and deliberately unused: swapping a chart onto it is the whole cost of changing the skip policy, so the decision stays a chart-config change rather than a mart rebuild."
+    d3format: ".1%"
     extra: null
     warning_text: null
   - metric_name: reporting_rate

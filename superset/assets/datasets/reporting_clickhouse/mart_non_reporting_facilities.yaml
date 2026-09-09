@@ -99,6 +99,15 @@ columns:
     filterable: true
     expression: null
     description: null
+  - column_name: was_skipped
+    verbose_name: Skipped
+    is_dttm: false
+    is_active: true
+    type: BIGINT
+    groupby: true
+    filterable: true
+    expression: null
+    description: "1 when the facility deliberately skipped this period rather than going silent. These rows stay in the table so no existing count moves; filter on it to separate the two."
 metrics:
   - metric_name: count
     verbose_name: "COUNT(*)"
