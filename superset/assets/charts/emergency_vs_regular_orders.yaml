@@ -3,7 +3,7 @@ viz_type: pie
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000061"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Distinct requisition count split between emergency and regular orders. Scoped to released orders (requisition_status = 'RELEASED'), i.e. requisitions converted to an actual order."
+description: "Distinct requisition count split between emergency and regular orders. Which statuses count is set by the Status filter, defaulting to released — a requisition that became an actual order. Widen it to see requisitions that never reached release."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -20,10 +20,6 @@ params:
     aggregate: COUNT_DISTINCT
     label: "Requisitions"
   adhoc_filters:
-    - clause: WHERE
-      expressionType: SQL
-      sqlExpression: "requisition_status = 'RELEASED'"
-      subject: requisition_status
     - clause: WHERE
       expressionType: SIMPLE
       operator: TEMPORAL_RANGE
@@ -46,7 +42,7 @@ params:
   label_type: key_value_percent
   number_format: ",.0f"
   date_format: smart_date
-  show_labels_threshold: 5
+  show_labels_threshold: 0
   outerRadius: 70
   innerRadius: 30
 query_context: null
