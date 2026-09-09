@@ -177,6 +177,13 @@ models:
               arguments:
                 values:
                   - Did not report
+      - name: was_skipped
+        description: "1 when the facility deliberately skipped this period rather than going silent. The row stays in this table either way, so no existing count moves; the flag exists so the two can be told apart, matching the Skipped series on Reporting Rate by Program."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
       - name: schedule_type
         description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
         tests:
@@ -244,10 +251,12 @@ models:
 
   - name: mart_reporting_status
     description: >
-      Reporting outcome per (facility × program × period). Superset of
-      mart_non_reporting_facilities — includes both 'Reported' and
-      'Did not report' rows, plus submission timing for the timeliness
-      chart on the Reporting Rate dashboard.
+      Reporting outcome per (facility × program × period): 'Reported',
+      'Skipped' where the facility deliberately skipped the period, or
+      'Did not report'. Carries submission timing for the timeliness chart on
+      the Reporting Rate dashboard. The reporting_rate metric counts only
+      'Reported' over all obligations, so a skip still reads as a miss there;
+      reporting_rate_excl_skipped is the alternative, defined and unused.
       BI contract: dashboards should query this mart, not raw tables.
     columns:
       - name: facility_name
@@ -267,6 +276,7 @@ models:
                 values:
                   - Did not report
                   - Reported
+                  - Skipped
       - name: schedule_type
         description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
         tests:

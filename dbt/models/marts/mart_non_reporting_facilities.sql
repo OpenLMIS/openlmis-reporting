@@ -15,6 +15,10 @@
 --     to determine the correct processing schedule per facility-program
 --   - Uses status_changes to check if a requisition was SUBMITTED
 --   - Only includes active, enabled facilities with active program support
+-- was_skipped marks the rows where the facility deliberately skipped the
+-- period rather than going silent. The rows stay in this table so no existing
+-- number moves; the flag is here so a reader can separate the two, matching
+-- the Skipped series on Reporting Rate by Program.
 -- Rolling 3-year window on requisition created_date.
 
 with facility_program_schedules as (
@@ -59,10 +63,27 @@ submitted as (
     and sc.status = 'SUBMITTED'
   where r.created_date >= now() - interval 3 year
     and r.emergency = false
+),
+
+-- Periods the facility deliberately skipped, detected the same way
+skipped as (
+  select distinct
+    r.facility_id                    as facility_id,
+    r.program_id                     as program_id,
+    r.processing_period_id           as processing_period_id
+  from {{ ref('stg_requisitions') }} r
+  inner join {{ ref('stg_status_changes') }} sc
+    on sc.requisition_id = r.id
+    and sc.status = 'SKIPPED'
+  where r.created_date >= now() - interval 3 year
+    and r.emergency = false
 )
 
 select
-  e.facility_id,
+  -- aliased explicitly: the ClickHouse analyser keeps a join key's output
+  -- column qualified when the name exists on both sides, which emits a column
+  -- literally called "e.facility_id" and breaks this table's ORDER BY
+  e.facility_id     as facility_id,
   f.code            as facility_code,
   f.name            as facility_name,
   f.active          as facility_active,
@@ -79,8 +100,13 @@ select
   {{ schedule_type('e.period_start_date', 'e.period_end_date') }}
                     as schedule_type,
 
-  'Did not report'  as reporting_status
+  'Did not report'  as reporting_status,
+  if(k.facility_id is null, 0, 1) as was_skipped
 from expected e
+left join skipped k
+  on e.facility_id = k.facility_id
+  and e.program_id = k.program_id
+  and e.period_id  = k.processing_period_id
 left join submitted s
   on e.facility_id = s.facility_id
   and e.program_id = s.program_id
