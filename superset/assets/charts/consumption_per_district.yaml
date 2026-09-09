@@ -3,7 +3,7 @@ viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000042"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Ratio of raw consumption to adjusted consumption per district (sum(consumption)/sum(adjusted_consumption)). A value near 1.0 means raw and adjusted consumption agree; values >1 indicate adjustments reduce reported consumption, <1 indicate adjustments increase it."
+description: "Reported consumption as a share of adjusted consumption, per district (sum(total_consumed_quantity) / sum(adjusted_consumption)). Adjusted consumption scales the reported quantity up for days a product was out of stock, so this ratio is at most 1.0: it reads 1.0 in a district-month with no stockouts, and falls as stockouts take a larger share of the period. Measured across the mart it runs from 0.23 to 1.0."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -24,7 +24,7 @@ params:
       operator: TEMPORAL_RANGE
       operatorId: TEMPORAL_RANGE
       subject: period_end_date
-      comparator: "Last 12 months"
+      comparator: "Last 3 years"
     - clause: WHERE
       expressionType: SIMPLE
       operator: ==
@@ -38,7 +38,9 @@ params:
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
-  x_axis_title_margin: 30
+  x_axis_title_margin: 40
+  x_axis_time_format: "%b '%y"
+  xAxisLabelRotation: 30
   # Short enough to fit vertically inside a half-height card - the full
   # wording overflowed into the legend row.
   y_axis_title: "Consumed / adjusted ratio"

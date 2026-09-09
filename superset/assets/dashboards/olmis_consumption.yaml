@@ -1,7 +1,7 @@
 dashboard_title: "OLMIS Consumption"
 uuid: "d1e2f3a4-b5c6-4d7e-8f9a-000000000040"
 version: "1.0.0"
-description: "Consumption analytics: trend, year-over-year, per-district, top consumed products, and a logistics summary."
+description: "Consumption analytics: trend, consumption by district, per-district, top consumed products, and a logistics summary."
 slug: olmis-consumption
 css: ""
 published: true
@@ -162,7 +162,6 @@ metadata:
           - ROOT_ID
         excluded:
           - 8202
-          - 8203
           - 8204
           - 8205
           - 8206
@@ -242,7 +241,7 @@ position:
     id: GRID_ID
     children:
       - ROW-trend
-      - ROW-yoy
+      - ROW-consumption
       - ROW-district
       - ROW-products
       - ROW-logistics
@@ -270,47 +269,32 @@ position:
       chartId: 8201
       height: 50
       width: 12
-      sliceName: "Consumption Trend"
+      sliceName: "Adjusted Consumption Trend"
       uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000041"
-  ROW-yoy:
+  ROW-consumption:
     type: ROW
-    id: ROW-yoy
+    id: ROW-consumption
     children:
-      - CHART-current-year
-      - CHART-last-year
+      - CHART-consumption
     parents:
       - ROOT_ID
       - GRID_ID
     meta:
       background: BACKGROUND_TRANSPARENT
-  CHART-current-year:
+  CHART-consumption:
     type: CHART
-    id: CHART-current-year
+    id: CHART-consumption
     children: []
     parents:
       - ROOT_ID
       - GRID_ID
-      - ROW-yoy
+      - ROW-consumption
     meta:
       chartId: 8202
       height: 50
-      width: 6
-      sliceName: "Consumption — Current 12 Months"
+      width: 12
+      sliceName: "Consumption by District"
       uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000043"
-  CHART-last-year:
-    type: CHART
-    id: CHART-last-year
-    children: []
-    parents:
-      - ROOT_ID
-      - GRID_ID
-      - ROW-yoy
-    meta:
-      chartId: 8203
-      height: 50
-      width: 6
-      sliceName: "Consumption — Previous 12 Months"
-      uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000044"
   ROW-district:
     type: ROW
     id: ROW-district

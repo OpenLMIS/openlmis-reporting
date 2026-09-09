@@ -1,9 +1,9 @@
-slice_name: "Consumption Trend"
+slice_name: "Adjusted Consumption Trend"
 viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000041"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Total adjusted consumption over time across all reporting facilities. Filter by Program/District/etc to scope. Series are split by reporting cadence (the Schedule Type column): pooling monthly and quarterly reporters into one total made the line step every third month, because the quarterly ones only contribute in the months that close a quarter. Split apart, each series is internally consistent, though a quarterly series carries a whole quarter's total in each point, so its level is not directly comparable to the monthly series. On the monthly axis it draws one marker per quarter; switch the Time Grain filter to quarter to compare the cadences on a grain that is complete for both."
+description: "Total adjusted consumption over time across all reporting facilities. Filter by Program/District/etc to scope. Series are split by reporting cadence (the Schedule Type column): pooling monthly and quarterly reporters into one total made the line step every third month, because the quarterly ones only contribute in the months that close a quarter. Split apart, each series is internally consistent, though a quarterly series carries a whole quarter's total in each point, so its level is not directly comparable to the monthly series. On the monthly axis it draws one marker per quarter; switch the Time Grain filter to quarter to compare the cadences on a grain that is complete for both. Adjusted consumption is the reported quantity scaled up for the days a product was out of stock, so it reads higher than the reported figure whenever there were stockouts. Consumption by District plots the reported quantity, which is why the two charts differ."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -38,13 +38,15 @@ params:
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
-  x_axis_title_margin: 30
+  x_axis_title_margin: 40
+  x_axis_time_format: "%b '%y"
+  xAxisLabelRotation: 30
   y_axis_title: Adjusted Consumption
   y_axis_title_margin: 30
   y_axis_title_position: Top
   y_axis_format: ",.0f"
   rich_tooltip: true
-  tooltipTimeFormat: smart_date
+  tooltipTimeFormat: "%b %Y"
   show_value: false
   markerEnabled: true
   markerSize: 6

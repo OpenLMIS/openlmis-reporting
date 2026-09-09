@@ -3,7 +3,7 @@ viz_type: table
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000046"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000040"
-description: "Per-facility stock snapshot (consumption, AMC, stock on hand) for the five most-consumed products of each program in the latest reporting period, so the report stays populated whichever program the dashboard is filtered to. The selection is materialized as the mart_logistics_summary mart, refreshed on every dbt build."
+description: "Per-facility stock detail (consumption, AMC, stock on hand) for the five most-consumed products of each program, so the report stays populated whichever program is selected. The chart carries no window of its own: the dashboard Period filter sets the range, and with nothing selected it spans everything the mart holds."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -21,7 +21,19 @@ params:
     - average_consumption
   groupby: []
   metrics: []
-  adhoc_filters: []
+  adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: ==
+      operatorId: EQUALS
+      subject: in_complete_month
+      comparator: 1
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
   row_limit: 10000
   order_by_cols:
     - '["period_end_date", false]'
@@ -32,8 +44,6 @@ params:
   table_timestamp_format: smart_date
   page_length: 25
   include_search: true
-  header_font_size: 0.6
-  cell_font_size: 0.6
   column_config:
     facility_name:
       customColumnName: "Facility"
