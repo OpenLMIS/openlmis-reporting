@@ -30,6 +30,4 @@ params:
   table_timestamp_format: smart_date
   page_length: 10
   include_search: false
-  header_font_size: 0.6
-  cell_font_size: 0.6
 query_context: null
