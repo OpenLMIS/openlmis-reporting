@@ -25,7 +25,11 @@ select
   p.code            as program_code,
   p.name            as program_name,
   pp.name           as period_name,
-  pp.end_date       as period_end_date
+  pp.end_date       as period_end_date,
+
+  -- reporting cadence (shared macro - single source of truth across marts)
+  {{ schedule_type('pp.start_date', 'pp.end_date') }}
+                    as schedule_type
 from {{ ref('stg_requisitions') }} r
 left join {{ ref('stg_facilities') }} f
   on r.facility_id = f.id
