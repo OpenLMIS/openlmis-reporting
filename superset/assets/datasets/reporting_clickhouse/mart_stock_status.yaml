@@ -333,7 +333,7 @@ columns:
     groupby: false
     filterable: true
     expression: null
-    description: "When the requisition was submitted, taken from its SUBMITTED status change. Joined in from the reporting mart on facility, program and period; 98% of requisitions match."
+    description: "When the requisition was submitted, taken from its SUBMITTED status change. The requisition's own earliest SUBMITTED status change, carried on the mart at requisition grain. It used to be joined in on facility, programme and period, a key coarser than a requisition, so a requisition could inherit a date belonging to a different one. About 6% of requisitions have no SUBMITTED record at all and so no date: roughly half are skipped periods, and almost all of the rest are EPI, which goes from INITIATED straight to AUTHORIZED."
   - column_name: on_time_through_day
     verbose_name: On time through day
     is_dttm: false
