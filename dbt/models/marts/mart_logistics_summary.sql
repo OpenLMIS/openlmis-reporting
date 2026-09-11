@@ -28,7 +28,11 @@ with latest_month as (
 ),
 
 top_products as (
-  select program_name, product_name
+  -- keys aliased so they cannot collide with s.program_name / s.product_name:
+  -- with the same name on both sides of the join the ClickHouse analyser emits the
+  -- qualified name into the output, and the table ends up carrying a column
+  -- literally called "s.product_name"
+  select program_name as tp_program_name, product_name as tp_product_name
   from (
     select
       program_name,
@@ -49,8 +53,20 @@ top_products as (
   where consumption_rank <= 5
 )
 
-select s.*
+select
+  s.*,
+  -- Month completeness, so the report can hide the structurally partial newest
+  -- month the way every other chart on this dashboard already does. A missing
+  -- flag row degrades to "complete" (ClickHouse fills a LEFT JOIN miss with the
+  -- type default, not NULL), so a stale flags table can never blank the report.
+  if(mc.month = toDate(0), 1, mc.is_complete) as in_complete_month
 from {{ ref('mart_stock_status') }} s
 inner join top_products tp
-  on s.program_name = tp.program_name
- and s.product_name = tp.product_name
+  on s.program_name = tp.tp_program_name
+ and s.product_name = tp.tp_product_name
+left join (
+  select month, is_complete
+  from {{ ref('mart_month_completeness') }}
+  where family = 'stock'
+) mc
+  on mc.month = toStartOfMonth(s.period_end_date)

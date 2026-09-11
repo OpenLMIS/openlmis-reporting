@@ -18,7 +18,12 @@
 --     determine the schedule each (facility, program) follows
 --   - status_changes (status='SUBMITTED') determines if a report happened
 --   - reporting_status: 'Reported' iff a SUBMITTED requisition exists for
---     the (facility, program, period) combination, else 'Did not report'
+--     the (facility, program, period) combination; 'Skipped' when no report
+--     exists but the facility deliberately skipped that period (a SKIPPED
+--     status change); 'Did not report' otherwise. Reported wins over Skipped
+--     if a key somehow carries both. Splitting Skipped out does NOT change
+--     the reporting_rate metric, which still counts only 'Reported' over all
+--     obligations - a skip stays a miss until the rate policy is decided.
 --   - submitted_date / submitted_week_of_month: from the SUBMITTED status
 --     change, used by the "Reporting Timeliness By Week" chart to bucket
 --     submissions into weeks 1–5 of the month
@@ -68,6 +73,24 @@ submitted as (
   where r.created_date >= now() - interval 3 year
     and r.emergency = false
   group by r.facility_id, r.program_id, r.processing_period_id
+),
+
+skipped as (
+  -- Periods the facility deliberately skipped. Detected through the SKIPPED
+  -- status change for symmetry with `submitted` above; the requisition's
+  -- current status agrees on every row in the Malawi data, so either route
+  -- gives the same set. Every program in that data has periods_skippable set,
+  -- so a skip is a legitimate outcome rather than a data error.
+  select distinct
+    r.facility_id                    as facility_id,
+    r.program_id                     as program_id,
+    r.processing_period_id           as processing_period_id
+  from {{ ref('stg_requisitions') }} r
+  inner join {{ ref('stg_status_changes') }} sc
+    on sc.requisition_id = r.id
+    and sc.status = 'SKIPPED'
+  where r.created_date >= now() - interval 3 year
+    and r.emergency = false
 )
 
 select
@@ -89,9 +112,9 @@ select
                                             as schedule_type,
 
   -- reporting outcome
-  case when s.facility_id is null
-       then 'Did not report'
-       else 'Reported'
+  case when s.facility_id is not null then 'Reported'
+       when k.facility_id is not null then 'Skipped'
+       else 'Did not report'
   end                                       as reporting_status,
   s.submitted_date,
 
@@ -120,6 +143,10 @@ left join submitted s
   on e.facility_id = s.facility_id
   and e.program_id = s.program_id
   and e.period_id  = s.processing_period_id
+left join skipped k
+  on e.facility_id = k.facility_id
+  and e.program_id = k.program_id
+  and e.period_id  = k.processing_period_id
 inner join {{ ref('stg_facilities') }} f
   on e.facility_id = f.id
 left join {{ ref('stg_facility_types') }} ft

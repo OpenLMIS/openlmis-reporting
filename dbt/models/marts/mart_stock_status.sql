@@ -44,7 +44,7 @@
 select
   -- line item identifiers
   li.id                         as line_item_id,
-  li.requisition_id,
+  li.requisition_id             as requisition_id,
 
   -- facility
   f.id                          as facility_id,
@@ -137,6 +137,12 @@ select
   r.status                      as requisition_status,
   r.modified_date               as requisition_modified_date,
 
+  -- the requisition's OWN submission timestamp: the earliest SUBMITTED status
+  -- change for this requisition. Kept at requisition grain because the
+  -- reporting mart can only offer it per facility-program-period and hands the
+  -- same date to every requisition sharing that tuple.
+  sub.submitted_date            as submitted_date,
+
   -- computed: order timeliness based on day-of-month of last requisition update
   -- (matches legacy 'Order Timeliness' computed column on stock_status_and_consumption)
   case
@@ -168,6 +174,18 @@ left join {{ ref('stg_processing_schedules') }} ps
   on pp.processing_schedule_id = ps.id
 left join {{ ref('stg_orderables') }} o
   on li.orderable_id = o.id
+left join (
+  -- key aliased so it cannot collide with li.requisition_id: the ClickHouse
+  -- analyser keeps a join key's output column qualified when the name exists on
+  -- both sides, which would break this table's ORDER BY
+  select
+    requisition_id    as sub_requisition_id,
+    min(created_date) as submitted_date
+  from {{ ref('stg_status_changes') }}
+  where status = 'SUBMITTED'
+  group by requisition_id
+) sub
+  on sub.sub_requisition_id = li.requisition_id
 where r.created_date >= now() - interval 3 year
   and pp.end_date >= now() - interval 3 year
 {% if is_incremental() %}

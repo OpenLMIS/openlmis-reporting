@@ -24,6 +24,16 @@
 --                 obligations exist in advance, so they cannot be the yardstick)
 --   adjustments - distinct facilities with adjustments   (mart_adjustments)
 --
+-- A month must also carry a comparable BASE, which is the population the
+-- activity is measured against: obligations for reporting, and the activity
+-- itself for the other two families, where the two are the same thing. This
+-- catches a month whose cohort changed rather than whose data is late, and
+-- there is a live example: the weekly reporting schedule stops generating
+-- periods in April 2026, so May 2026 carries 6,072 obligations against 9,284
+-- the month before. Reported volume held, so the activity signal alone called
+-- May complete, and the pooled reporting rate jumped 51.4% to 75.8% on the
+-- final point of every trend - a composition change reading as improvement.
+--
 -- Rebuilt on every dbt run (one aggregation per family), so the flags track
 -- the data as months fill in. Charts consume the flags through the dataset
 -- layer; the incremental marts themselves stay untouched.
@@ -33,7 +43,8 @@ with monthly as (
   select
     'stock'                              as family,
     toStartOfMonth(period_end_date)      as month,
-    uniqExact(facility_id)               as units
+    uniqExact(facility_id)               as units,
+    uniqExact(facility_id)               as base
   from {{ ref('mart_stock_status') }}
   group by month
 
@@ -42,7 +53,12 @@ with monthly as (
   select
     'reporting'                          as family,
     toStartOfMonth(period_end_date)      as month,
-    countIf(reporting_status = 'Reported') as units
+    -- Actual reports, and deliberately NOT following the skip policy: this measures how
+    -- much data arrived in a month, so a skipped period contributes nothing whatever the
+    -- reporting rate is later decided to count. Changing this shifts in_complete_month,
+    -- which gates the months every reporting chart draws.
+    countIf(reporting_status = 'Reported') as units,
+    count()                                as base
   from {{ ref('mart_reporting_status') }}
   group by month
 
@@ -51,7 +67,8 @@ with monthly as (
   select
     'adjustments'                        as family,
     toStartOfMonth(period_end_date)      as month,
-    uniqExact(facility_id)               as units
+    uniqExact(facility_id)               as units,
+    uniqExact(facility_id)               as base
   from {{ ref('mart_adjustments') }}
   group by month
 
@@ -63,12 +80,19 @@ with_ratio as (
     family,
     month,
     units,
+    base,
     units / nullIf(
       max(units) over (
         partition by family
         order by month
         rows between 3 preceding and 1 preceding
-      ), 0)                              as coverage_ratio
+      ), 0)                              as coverage_ratio,
+    base / nullIf(
+      max(base) over (
+        partition by family
+        order by month
+        rows between 3 preceding and 1 preceding
+      ), 0)                              as base_ratio
   from monthly
 
 ),
@@ -79,9 +103,16 @@ flagged as (
     family,
     month,
     units,
+    base,
     coverage_ratio,
-    if(coverage_ratio is null
-       or coverage_ratio >= {{ var('month_completeness_threshold', 0.8) }},
+    base_ratio,
+    -- both signals must pass: late data fails the first, a changed cohort the
+    -- second. For stock and adjustments the two are the same measure, so the
+    -- base test is a no-op there by construction.
+    if((coverage_ratio is null
+        or coverage_ratio >= {{ var('month_completeness_threshold', 0.8) }})
+       and (base_ratio is null
+        or base_ratio >= {{ var('month_completeness_threshold', 0.8) }}),
        1, 0)                             as is_complete
   from with_ratio
 
@@ -91,7 +122,9 @@ select
   family,
   month,
   units,
+  base,
   round(coverage_ratio, 3)               as coverage_ratio,
+  round(base_ratio, 3)                   as base_ratio,
   is_complete,
   if(is_complete = 1
      and month = max(if(is_complete = 1, month, toDate(0)))
