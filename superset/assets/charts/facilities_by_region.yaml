@@ -30,7 +30,7 @@ params:
   label_type: key_value_percent
   number_format: ",.0f"
   date_format: smart_date
-  show_labels_threshold: 5
+  show_labels_threshold: 0
   outerRadius: 70
   innerRadius: 30
 query_context: null

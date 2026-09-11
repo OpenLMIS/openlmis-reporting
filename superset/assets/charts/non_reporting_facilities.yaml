@@ -3,7 +3,7 @@ viz_type: table
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000015"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000020"
-description: "Active facilities that did not submit a requisition for the selected period. These are reporting blind spots with no stock visibility."
+description: "Active facilities that did not submit a requisition for the selected period. These are reporting blind spots with no stock visibility. A row flagged Skipped is a period the facility deliberately skipped rather than went silent on; those rows stay here because the blind spot is the same either way, and the Skipped Facilities table beside this one is that subset on its own."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -15,13 +15,14 @@ params:
     - program_name
     - period_name
     - zone_name
+    - was_skipped
   metrics:
     - expressionType: SIMPLE
       column:
         column_name: reporting_status
         type: String
       aggregate: COUNT
-      label: "Missed Reports"
+      label: "Unreported Periods"
   adhoc_filters: []
   row_limit: null
   order_by_cols: []
@@ -33,6 +34,4 @@ params:
   table_timestamp_format: smart_date
   page_length: 25
   include_search: true
-  header_font_size: 0.6
-  cell_font_size: 0.6
 query_context: null

@@ -16,9 +16,9 @@ params:
   metrics:
     - expressionType: SQL
       sqlExpression: "SUM(combined_stockout)"
-      label: "Stocked Out Facilities"
+      label: "Stock-Out Count"
   column_config:
-    Stocked Out Facilities:
+    Stock-Out Count:
       d3NumberFormat: ",.0f"
   adhoc_filters: []
   row_limit: 10000
@@ -30,6 +30,4 @@ params:
   table_timestamp_format: smart_date
   page_length: 10
   include_search: false
-  header_font_size: 0.6
-  cell_font_size: 0.6
 query_context: null

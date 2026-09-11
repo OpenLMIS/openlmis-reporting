@@ -3,7 +3,7 @@ viz_type: table
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000053"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000050"
-description: "Adjustment reasons ranked by total adjusted quantity in the latest month."
+description: "Adjustment reasons ranked by total adjusted quantity. The dashboard Period filter sets the range; with nothing selected it covers the three years the mart retains. Months whose data is still arriving are excluded."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -28,9 +28,15 @@ params:
   adhoc_filters:
     - clause: WHERE
       expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
+    - clause: WHERE
+      expressionType: SIMPLE
       operator: ==
       operatorId: EQUALS
-      subject: in_latest_complete_month
+      subject: in_complete_month
       comparator: 1
   row_limit: 10000
   order_by_cols: []
@@ -41,6 +47,4 @@ params:
   table_timestamp_format: smart_date
   page_length: 10
   include_search: true
-  header_font_size: 0.6
-  cell_font_size: 0.6
 query_context: null

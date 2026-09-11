@@ -3,16 +3,16 @@ viz_type: echarts_timeseries_bar
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000084"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
-description: "Average reporting rate per program for each calendar year (rolling). Bars = program, series = year."
+description: "Average reporting rate per program, grouped by calendar year. Only the years the filters actually select appear on the axis: the year is a categorical column rather than a time scale, so no empty years are drawn either side of the data. Counts facility-program-period reporting obligations, not facilities, and only complete periods count, so a partial newest month never reads as a collapse."
 certified_by: null
 certification_details: null
 is_managed_externally: false
 cache_timeout: null
 params:
   viz_type: echarts_timeseries_bar
-  x_axis: program_name
+  x_axis: period_year
   groupby:
-    - period_year
+    - program_name
   metrics:
     - reporting_rate
   adhoc_filters:
@@ -21,7 +21,7 @@ params:
       operator: TEMPORAL_RANGE
       operatorId: TEMPORAL_RANGE
       subject: period_end_date
-      comparator: "Last 5 years"
+      comparator: "Last 3 years"
     - clause: WHERE
       expressionType: SIMPLE
       operator: ==
@@ -34,11 +34,14 @@ params:
   show_legend: true
   legendType: scroll
   legendOrientation: top
-  xAxisLabelRotation: 45
+  x_axis_title: Year
+  x_axis_title_margin: 30
+  xAxisLabelRotation: 0
   y_axis_title: Reporting Rate
   y_axis_title_margin: 30
   y_axis_title_position: Top
   y_axis_format: ".1%"
+  y_axis_bounds: [null, 1]
   truncateYAxis: false
   rich_tooltip: true
   showTooltipTotal: false

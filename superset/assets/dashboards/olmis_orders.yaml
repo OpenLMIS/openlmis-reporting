@@ -180,17 +180,18 @@ metadata:
         filterState:
           value: null
         ownState: {}
-    - id: NATIVE_FILTER-emergency
-      name: Emergency
+    - id: NATIVE_FILTER-status
+      name: Status
       filterType: filter_select
       targets:
         - column:
-            name: emergency
+            name: requisition_status
           datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
       scope:
         rootPath:
           - ROOT_ID
-        excluded: []
+        excluded:
+          - 8505
       controlValues:
         enableEmptyFilter: false
         defaultToFirstItem: false
@@ -198,12 +199,114 @@ metadata:
         searchAllOptions: false
         inverseSelection: false
       type: NATIVE_FILTER
-      description: ""
+      description: "Which requisition statuses count as an order. Defaults to RELEASED, the point at which a requisition becomes an actual order. Vertical programmes rarely reach release, so a programme can look empty here — widen the selection to AUTHORIZED to see where its requisitions actually stop."
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value:
+            - RELEASED
+        ownState: {}
+    - id: NATIVE_FILTER-emergency
+      name: Order type
+      filterType: filter_select
+      targets:
+        - column:
+            name: order_type
+          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded:
+          - 8505
+      controlValues:
+        enableEmptyFilter: false
+        defaultToFirstItem: false
+        multiSelect: true
+        searchAllOptions: false
+        inverseSelection: false
+      type: NATIVE_FILTER
+      description: "Regular or emergency orders. Regular orders follow the reporting schedule; emergency orders are raised outside it."
       cascadeParentIds: []
       defaultDataMask:
         extraFormData: {}
         filterState:
           value: null
+        ownState: {}
+    - id: NATIVE_FILTER-on-time-through
+      name: On time through
+      filterType: filter_select
+      targets:
+        - column:
+            name: on_time_through_day
+          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded:
+          - 8501
+          - 8503
+          - 8504
+          - 8505
+      controlValues:
+        enableEmptyFilter: false
+        defaultToFirstItem: false
+        multiSelect: false
+        searchAllOptions: false
+        inverseSelection: false
+        sortAscending: true
+        sortMetric: submission_day
+      adhoc_filters:
+        - clause: WHERE
+          expressionType: SQL
+          sqlExpression: "submitted_date IS NOT NULL"
+          subject: submitted_date
+      type: NATIVE_FILTER
+      description: "Last day of the month that still counts as on time. Set to 10 by default."
+      cascadeParentIds: []
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value:
+            - 10
+        ownState: {}
+    - id: NATIVE_FILTER-late-through
+      name: Late through
+      filterType: filter_select
+      targets:
+        - column:
+            name: late_through_day
+          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded:
+          - 8501
+          - 8503
+          - 8504
+          - 8505
+      controlValues:
+        enableEmptyFilter: false
+        defaultToFirstItem: false
+        multiSelect: false
+        searchAllOptions: false
+        inverseSelection: false
+        sortAscending: true
+        sortMetric: submission_day
+      adhoc_filters:
+        - clause: WHERE
+          expressionType: SQL
+          sqlExpression: "submitted_date IS NOT NULL"
+          subject: submitted_date
+      type: NATIVE_FILTER
+      description: "Last day of the month that counts as late rather than extreme late. Set to 15 by default."
+      cascadeParentIds: []
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value:
+            - 15
         ownState: {}
 position:
   DASHBOARD_VERSION_KEY: v2
@@ -242,7 +345,7 @@ position:
       - GRID_ID
       - ROW-pies
     meta:
-      chartId: 0
+      chartId: 8501
       height: 50
       width: 6
       sliceName: "Emergency vs Regular Orders"
@@ -256,7 +359,7 @@ position:
       - GRID_ID
       - ROW-pies
     meta:
-      chartId: 0
+      chartId: 8502
       height: 50
       width: 6
       sliceName: "Order Timeliness"
@@ -280,7 +383,7 @@ position:
       - GRID_ID
       - ROW-bar
     meta:
-      chartId: 0
+      chartId: 8503
       height: 50
       width: 12
       sliceName: "Estimated Order Value"
@@ -304,7 +407,7 @@ position:
       - GRID_ID
       - ROW-cost
     meta:
-      chartId: 0
+      chartId: 8504
       height: 50
       width: 12
       sliceName: "Total Cost of Orders"
@@ -328,7 +431,7 @@ position:
       - GRID_ID
       - ROW-non-reporting
     meta:
-      chartId: 0
+      chartId: 8505
       height: 50
       width: 12
       sliceName: "Non Reporting Facilities"

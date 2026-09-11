@@ -3,7 +3,7 @@ viz_type: echarts_timeseries_bar
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000014"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Distribution of line items by stock status category."
+description: "Number of requisition line items in each stock status category. The values are counts of line items, not percentages."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -18,8 +18,14 @@ params:
         column_name: line_item_id
         type: String
       aggregate: COUNT
-      label: "Line Items"
+      label: "Line Item Count"
   adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
     - clause: WHERE
       expressionType: SIMPLE
       operator: ==
@@ -33,7 +39,7 @@ params:
   x_axis_title: "Stock Status"
   x_axis_title_margin: 60
   xAxisLabelRotation: 45
-  y_axis_title: "Line Items"
+  y_axis_title: "Line Item Count"
   y_axis_title_margin: 30
   y_axis_title_position: Top
   y_axis_format: ",.0f"

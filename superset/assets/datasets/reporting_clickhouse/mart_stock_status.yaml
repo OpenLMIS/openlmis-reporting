@@ -325,7 +325,61 @@ columns:
     filterable: true
     expression: null
     description: "1 for rows in the most recent complete reporting month; the latest-month snapshot charts anchor on it"
+  - column_name: submitted_date
+    verbose_name: Submitted Date
+    is_dttm: true
+    is_active: true
+    type: DATETIME
+    groupby: false
+    filterable: true
+    expression: null
+    description: "When the requisition was submitted, taken from its SUBMITTED status change. The requisition's own earliest SUBMITTED status change, carried on the mart at requisition grain. It used to be joined in on facility, programme and period, a key coarser than a requisition, so a requisition could inherit a date belonging to a different one. About 6% of requisitions have no SUBMITTED record at all and so no date: roughly half are skipped periods, and almost all of the rest are EPI, which goes from INITIATED straight to AUTHORIZED."
+  - column_name: on_time_through_day
+    verbose_name: On time through day
+    is_dttm: false
+    is_active: true
+    type: BIGINT
+    groupby: true
+    filterable: true
+    expression: "toDayOfMonth(submitted_date)"
+    description: "Day of the month a requisition was submitted. Exists so the dashboard can offer an adjustable on-time cut-off; the filter that targets it supplies the boundary and does not itself filter rows."
+  - column_name: late_through_day
+    verbose_name: Late through day
+    is_dttm: false
+    is_active: true
+    type: BIGINT
+    groupby: true
+    filterable: true
+    expression: "toDayOfMonth(submitted_date)"
+    description: "Day of the month a requisition was submitted. Exists so the dashboard can offer an adjustable late cut-off; the filter that targets it supplies the boundary and does not itself filter rows."
+  - column_name: submission_timeliness
+    verbose_name: Submission Timeliness
+    is_dttm: false
+    is_active: true
+    type: String
+    groupby: true
+    filterable: true
+    expression: |
+      {% set a = (filter_values('on_time_through_day', remove_filter=True) or [10])[0] | int(10) %}
+      {% set b = (filter_values('late_through_day', remove_filter=True) or [15])[0] | int(15) %}
+      {# the two cut-offs are read as a range, so an on-time day set later than the late day
+         cannot silently delete the middle bucket #}
+      {% set lo = [a, b] | min %}
+      {% set hi = [a, b] | max %}
+      CASE WHEN submitted_date IS NULL THEN 'Submission date unknown'
+           WHEN toDayOfMonth(submitted_date) <= {{ lo }} THEN 'On time'
+           WHEN toDayOfMonth(submitted_date) <= {{ hi }} THEN 'Late'
+           ELSE 'Extreme late' END
+    description: "When in the month the requisition was submitted, against the cut-offs set in the dashboard filter bar. Defaults to 1st to 10th on time, 11th to 15th late, 16th onwards extreme late. About 6% of requisitions have no SUBMITTED status change of their own, so they carry no submission date; they are shown as their own slice rather than dropped, so the gap stays visible instead of silently shrinking the total. Roughly half of those are skipped periods, where nothing was ever submitted; almost all of the rest are EPI, where the requisition goes from INITIATED straight to AUTHORIZED and no SUBMITTED row is ever written."
 metrics:
+  - metric_name: submission_day
+    verbose_name: "Submission day of month"
+    metric_type: null
+    expression: "MIN(toDayOfMonth(submitted_date))"
+    description: "The day of the month itself, used only to sort the timeliness cut-off filters numerically instead of alphabetically."
+    d3format: ",.0f"
+    extra: null
+    warning_text: null
   - metric_name: latest_period_end
     verbose_name: "Latest Period End"
     metric_type: null

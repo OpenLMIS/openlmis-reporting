@@ -190,7 +190,8 @@ metadata:
       scope:
         rootPath:
           - ROOT_ID
-        excluded: []
+        excluded:
+          - 8605
       controlValues:
         enableEmptyFilter: false
         defaultToFirstItem: false
@@ -216,7 +217,8 @@ metadata:
       scope:
         rootPath:
           - ROOT_ID
-        excluded: []
+        excluded:
+          - 8605
       controlValues:
         enableEmptyFilter: false
         defaultToFirstItem: false
@@ -267,7 +269,7 @@ position:
       - GRID_ID
       - ROW-overview-1
     meta:
-      chartId: 0
+      chartId: 8601
       height: 50
       width: 12
       sliceName: "Stock Status Overview"
@@ -292,7 +294,7 @@ position:
       - GRID_ID
       - ROW-tables-1
     meta:
-      chartId: 0
+      chartId: 8602
       height: 50
       width: 6
       sliceName: "Most Stocked Out Facilities"
@@ -306,7 +308,7 @@ position:
       - GRID_ID
       - ROW-tables-1
     meta:
-      chartId: 0
+      chartId: 8603
       height: 50
       width: 6
       sliceName: "Most Stocked Out Products"
@@ -330,7 +332,7 @@ position:
       - GRID_ID
       - ROW-tables-2
     meta:
-      chartId: 0
+      chartId: 8604
       height: 50
       width: 12
       sliceName: "Most Stocked Out Districts"
@@ -354,7 +356,7 @@ position:
       - GRID_ID
       - ROW-non-reporting
     meta:
-      chartId: 0
+      chartId: 8605
       height: 50
       width: 12
       sliceName: "Non Reporting Facilities"

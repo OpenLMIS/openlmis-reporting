@@ -125,6 +125,32 @@ metadata:
         filterState:
           value: null
         ownState: {}
+    - id: NATIVE_FILTER-requisition-type
+      name: Requisition type
+      filterType: filter_select
+      targets:
+        - column:
+            name: requisition_type
+          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000001"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded: []
+      controlValues:
+        enableEmptyFilter: false
+        defaultToFirstItem: false
+        multiSelect: true
+        searchAllOptions: false
+        inverseSelection: false
+      type: NATIVE_FILTER
+      description: "Regular or emergency requisitions, so the two are not read as one. Combining them misrepresents the picture: emergency requisitions are 2,651 of 169,412 and follow a different process."
+      cascadeParentIds:
+        - NATIVE_FILTER-program
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value: null
+        ownState: {}
 position:
   DASHBOARD_VERSION_KEY: v2
   ROOT_ID:

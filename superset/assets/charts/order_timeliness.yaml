@@ -3,7 +3,7 @@ viz_type: pie
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000064"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Distribution of requisition line items by when their parent requisition was last modified in the calendar month (Before 10th / Between 10th - 20th / After 20th). Reflects how quickly facilities act on their requisition cycle, weighted by line-item volume. Legacy chart was hardcoded to program_name = 'Essential Meds'; the migration drops that filter and exposes Program in the dashboard filter bar."
+description: "How many requisitions arrived early or late in the calendar month, against the cut-offs set in the dashboard filter bar (default: 1st to 10th on time, 11th to 15th late, 16th onwards extreme late). Counts distinct requisitions, the same unit as Emergency vs Regular Orders beside it, so the two charts on this dashboard can be read against each other. The day comes from the requisition's own SUBMITTED status change; about 6% of requisitions have no such record and are grouped as 'Submission date unknown' rather than dropped. Legacy chart was hardcoded to program_name = 'Essential Meds'; the migration drops that filter and exposes Program in the dashboard filter bar."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -11,20 +11,26 @@ cache_timeout: null
 params:
   viz_type: pie
   groupby:
-    - order_timeliness
+    - submission_timeliness
   metric:
     expressionType: SIMPLE
     column:
       column_name: requisition_id
       type: String
-    aggregate: COUNT
-    label: "Line Items"
+    aggregate: COUNT_DISTINCT
+    label: "Requisitions"
   adhoc_filters:
+    - clause: WHERE
+      expressionType: SIMPLE
+      operator: TEMPORAL_RANGE
+      operatorId: TEMPORAL_RANGE
+      subject: period_end_date
+      comparator: "Last 3 years"
     - clause: WHERE
       expressionType: SIMPLE
       operator: ==
       operatorId: EQUALS
-      subject: in_latest_complete_month
+      subject: in_complete_month
       comparator: 1
   row_limit: 25
   sort_by_metric: true
@@ -36,7 +42,7 @@ params:
   label_type: key_value_percent
   number_format: ",.0f"
   date_format: smart_date
-  show_labels_threshold: 5
+  show_labels_threshold: 0
   outerRadius: 70
   innerRadius: 30
 query_context: null

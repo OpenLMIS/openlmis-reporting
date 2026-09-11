@@ -3,7 +3,7 @@ viz_type: echarts_timeseries_line
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000017"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000010"
-description: "Average months of stock per district over time. months_of_stock is computed as round(stock_on_hand / average_consumption, 1) per line item; the chart averages this across all line items in each district per period. Bucketed by quarter because this chart already spends its series dimension on district, so cadence cannot be split out the way it is on the pooled trend charts. A quarter is the grain at which a monthly and a quarterly reporter both land in every bucket, so neither leaves holes. Use the Time Grain filter to switch to months once a single cadence is selected."
+description: "Median months of stock per district over time. months_of_stock is computed as round(stock_on_hand / average_consumption, 1) per line item, and the chart takes the median across the line items in each district per period. A median rather than an average because the average is dominated by a handful of lines with very large stock against tiny consumption: across the districts the average swings by 4.1 months over a year on average and by 37.3 in the worst case, where the median swings 1.1 and 2.2. Only line items that have consumption can be rated at all, which is roughly a third of them, so this describes the products that move rather than the whole catalogue: a district can read a healthy figure here while most of its lines are stocked out, and the Stockout Rate chart is the one that counts those. Bucketed by month so the axis shows the periods actually selected. A quarterly grain is the safer default only where monthly and quarterly reporters are mixed, because a quarterly reporter leaves holes in two months out of three; use the Time Grain filter to switch if that applies. Where every reporter is monthly or weekly, facility coverage is flat month to month and no bucket thins out."
 certified_by: null
 certification_details: null
 is_managed_externally: false
@@ -11,11 +11,11 @@ cache_timeout: null
 params:
   viz_type: echarts_timeseries_line
   x_axis: period_end_date
-  time_grain_sqla: P3M
+  time_grain_sqla: P1M
   metrics:
     - expressionType: SQL
-      sqlExpression: "AVG(months_of_stock)"
-      label: "Avg Months of Stock"
+      sqlExpression: "median(months_of_stock)"
+      label: "Median months, lines with consumption"
   groupby:
     - zone_name
   adhoc_filters:
@@ -38,8 +38,10 @@ params:
   legendType: scroll
   legendOrientation: top
   x_axis_title: Period
-  x_axis_title_margin: 30
-  y_axis_title: Months of Stock
+  x_axis_title_margin: 40
+  x_axis_time_format: "%b '%y"
+  xAxisLabelRotation: 30
+  y_axis_title: "Median months of stock"
   y_axis_title_margin: 40
   y_axis_format: ".1f"
   rich_tooltip: true

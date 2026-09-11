@@ -14,6 +14,10 @@ metadata:
   refresh_frequency: 0
   default_filters: "{}"
   color_scheme: supersetColors
+  # label_colors stays empty on purpose: Superset 6.1 recomputes it on first render and
+  # writes {} straight back over an imported map, so the outcome colours cannot be pinned
+  # from YAML. Skipped therefore takes palette index 2 (green), the same slot the
+  # Timeliness chart beside it gives its own third series.
   label_colors: {}
   color_scheme_domain: []
   shared_label_colors: []
@@ -120,6 +124,7 @@ metadata:
       description: ""
       cascadeParentIds:
         - NATIVE_FILTER-program
+        - NATIVE_FILTER-schedule-type
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -148,6 +153,32 @@ metadata:
         - NATIVE_FILTER-program
         - NATIVE_FILTER-region
         - NATIVE_FILTER-district
+      defaultDataMask:
+        extraFormData: {}
+        filterState:
+          value: null
+        ownState: {}
+    - id: NATIVE_FILTER-schedule-type
+      name: Schedule Type
+      filterType: filter_select
+      targets:
+        - column:
+            name: schedule_type
+          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
+      scope:
+        rootPath:
+          - ROOT_ID
+        excluded: []
+      controlValues:
+        enableEmptyFilter: false
+        defaultToFirstItem: false
+        multiSelect: true
+        searchAllOptions: false
+        inverseSelection: false
+      type: NATIVE_FILTER
+      description: "Filter by program reporting frequency (Weekly / Monthly / Quarterly / BUQ). It matters more here than anywhere else: weekly obligations are a third of the total and are almost never reported, so the pooled rate reads about 48% against about 73% for the monthly cadence alone."
+      cascadeParentIds:
+        - NATIVE_FILTER-program
       defaultDataMask:
         extraFormData: {}
         filterState:
@@ -272,6 +303,7 @@ position:
     id: ROW-non-reporting
     children:
       - CHART-non-reporting
+      - CHART-skipped
     parents:
       - ROOT_ID
       - GRID_ID
@@ -288,6 +320,20 @@ position:
     meta:
       chartId: 0
       height: 50
-      width: 12
+      width: 6
       sliceName: "Non Reporting Facilities"
       uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000015"
+  CHART-skipped:
+    type: CHART
+    id: CHART-skipped
+    children: []
+    parents:
+      - ROOT_ID
+      - GRID_ID
+      - ROW-non-reporting
+    meta:
+      chartId: 0
+      height: 50
+      width: 6
+      sliceName: "Skipped Facilities"
+      uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000087"

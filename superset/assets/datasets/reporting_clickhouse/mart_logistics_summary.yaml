@@ -90,6 +90,15 @@ columns:
     filterable: true
     expression: null
     description: "Reporting frequency (Weekly / Monthly / Quarterly / BUQ), derived from the period length."
+  - column_name: in_complete_month
+    verbose_name: In Complete Month
+    is_dttm: false
+    is_active: true
+    type: UInt8
+    groupby: true
+    filterable: true
+    expression: null
+    description: "1 when the row's month reached the completeness threshold (see mart_month_completeness). The report hides the structurally partial newest month through this flag, the way the other charts on the dashboard already do."
   - column_name: period_end_date
     verbose_name: Period End Date
     is_dttm: true
