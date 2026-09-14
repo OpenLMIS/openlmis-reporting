@@ -334,24 +334,15 @@ columns:
     filterable: true
     expression: null
     description: "When the requisition was submitted, taken from its SUBMITTED status change. The requisition's own earliest SUBMITTED status change, carried on the mart at requisition grain. It used to be joined in on facility, programme and period, a key coarser than a requisition, so a requisition could inherit a date belonging to a different one. About 6% of requisitions have no SUBMITTED record at all and so no date: roughly half are skipped periods, and almost all of the rest are EPI, which goes from INITIATED straight to AUTHORIZED."
-  - column_name: on_time_through_day
-    verbose_name: On time through day
+  - column_name: timeliness_cutoff_day
+    verbose_name: Timeliness cut-off day
     is_dttm: false
     is_active: true
     type: BIGINT
     groupby: true
     filterable: true
     expression: "toDayOfMonth(submitted_date)"
-    description: "Day of the month a requisition was submitted. Exists so the dashboard can offer an adjustable on-time cut-off; the filter that targets it supplies the boundary and does not itself filter rows."
-  - column_name: late_through_day
-    verbose_name: Late through day
-    is_dttm: false
-    is_active: true
-    type: BIGINT
-    groupby: true
-    filterable: true
-    expression: "toDayOfMonth(submitted_date)"
-    description: "Day of the month a requisition was submitted. Exists so the dashboard can offer an adjustable late cut-off; the filter that targets it supplies the boundary and does not itself filter rows."
+    description: "Day of the month a report was submitted. Exists so the dashboard can offer adjustable timeliness cut-offs; the range filter that targets it supplies both boundaries and does not itself filter rows. Replaces the on_time_through_day and late_through_day pair, which were the same expression twice so that two separate filters had something to bind to."
   - column_name: submission_timeliness
     verbose_name: Submission Timeliness
     is_dttm: false
@@ -360,20 +351,21 @@ columns:
     groupby: true
     filterable: true
     expression: |
-      {% set a = (filter_values('on_time_through_day', remove_filter=True) or [10])[0] | int(10) %}
-      {% set b = (filter_values('late_through_day', remove_filter=True) or [15])[0] | int(15) %}
-      {# The two cut-offs are sorted, so the buckets stay contiguous and entering them
-         the wrong way round cannot delete the middle one. The cost is that the LOWER
-         number always becomes the on-time boundary whichever box it was typed into,
-         which the filter names alone cannot convey. The resolved days are therefore
-         written into the bucket labels: that is the only place a reader can see which
-         boundary actually applied, and it also surfaces the 10 and 15 defaults, which
-         otherwise take effect invisibly whenever a cut-off filter is left empty. #}
-      {% set lo = [a, b] | min %}
-      {% set hi = [a, b] | max %}
+      {% set raw = filter_values('timeliness_cutoff_day', remove_filter=True) or [10, 15] %}
+      {% set days = raw | map('int') | list %}
+      {# A single range filter supplies both boundaries, so they arrive already ordered
+         and cannot contradict each other. min and max are still taken rather than
+         trusted, because the same expression has to survive the filter being cleared,
+         restored from an old permalink carrying one value, or set by hand in the URL.
+         The resolved days stay in the bucket labels: with the filter cleared the 10 and
+         15 defaults apply, and the labels are the only place that is visible. #}
+      {% set lo = days | min %}
+      {% set hi = days | max %}
       CASE WHEN submitted_date IS NULL THEN 'Submission date unknown'
            WHEN toDayOfMonth(submitted_date) <= {{ lo }} THEN 'On time (1-{{ lo }})'
+      {%- if hi > lo %}
            WHEN toDayOfMonth(submitted_date) <= {{ hi }} THEN 'Late ({{ lo + 1 }}-{{ hi }})'
+      {%- endif %}
            ELSE 'Extreme late ({{ hi + 1 }}+)' END
     description: "When in the month the requisition was submitted, against the cut-offs set in the dashboard filter bar. Defaults to 1st to 10th on time, 11th to 15th late, 16th onwards extreme late. About 6% of requisitions have no SUBMITTED status change of their own, so they carry no submission date; they are shown as their own slice rather than dropped, so the gap stays visible instead of silently shrinking the total. Roughly half of those are skipped periods, where nothing was ever submitted; almost all of the rest are EPI, where the requisition goes from INITIATED straight to AUTHORIZED and no SUBMITTED row is ever written."
 metrics:
