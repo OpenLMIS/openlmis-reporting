@@ -362,14 +362,19 @@ columns:
     expression: |
       {% set a = (filter_values('on_time_through_day', remove_filter=True) or [10])[0] | int(10) %}
       {% set b = (filter_values('late_through_day', remove_filter=True) or [15])[0] | int(15) %}
-      {# the two cut-offs are read as a range, so an on-time day set later than the late day
-         cannot silently delete the middle bucket #}
+      {# The two cut-offs are sorted, so the buckets stay contiguous and entering them
+         the wrong way round cannot delete the middle one. The cost is that the LOWER
+         number always becomes the on-time boundary whichever box it was typed into,
+         which the filter names alone cannot convey. The resolved days are therefore
+         written into the bucket labels: that is the only place a reader can see which
+         boundary actually applied, and it also surfaces the 10 and 15 defaults, which
+         otherwise take effect invisibly whenever a cut-off filter is left empty. #}
       {% set lo = [a, b] | min %}
       {% set hi = [a, b] | max %}
       CASE WHEN submitted_date IS NULL THEN 'Submission date unknown'
-           WHEN toDayOfMonth(submitted_date) <= {{ lo }} THEN 'On time'
-           WHEN toDayOfMonth(submitted_date) <= {{ hi }} THEN 'Late'
-           ELSE 'Extreme late' END
+           WHEN toDayOfMonth(submitted_date) <= {{ lo }} THEN 'On time (1-{{ lo }})'
+           WHEN toDayOfMonth(submitted_date) <= {{ hi }} THEN 'Late ({{ lo + 1 }}-{{ hi }})'
+           ELSE 'Extreme late ({{ hi + 1 }}+)' END
     description: "When in the month the requisition was submitted, against the cut-offs set in the dashboard filter bar. Defaults to 1st to 10th on time, 11th to 15th late, 16th onwards extreme late. About 6% of requisitions have no SUBMITTED status change of their own, so they carry no submission date; they are shown as their own slice rather than dropped, so the gap stays visible instead of silently shrinking the total. Roughly half of those are skipped periods, where nothing was ever submitted; almost all of the rest are EPI, where the requisition goes from INITIATED straight to AUTHORIZED and no SUBMITTED row is ever written."
 metrics:
   - metric_name: submission_day

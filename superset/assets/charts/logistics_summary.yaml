@@ -3,7 +3,7 @@ viz_type: table
 uuid: "c1d2e3f4-a5b6-4c7d-8e9f-000000000046"
 version: "1.0.0"
 dataset_uuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000040"
-description: "Per-facility stock detail (consumption, AMC, stock on hand) for the five most-consumed products of each program, so the report stays populated whichever program is selected. The chart carries no window of its own: the dashboard Period filter sets the range, and with nothing selected it spans everything the mart holds."
+description: "Per-facility stock detail (consumption, AMC, stock on hand) for the five most-consumed products of each program, so the report stays populated whichever program is selected. The chart covers the last three years, narrowed further by the dashboard Period filter. Over the full three years the result runs past the row limit and the table shows a capped slice, flagged by the warning icon in its header; narrow with the filters to see a complete set."
 certified_by: null
 certification_details: null
 is_managed_externally: false
