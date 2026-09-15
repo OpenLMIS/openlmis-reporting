@@ -156,12 +156,12 @@ metadata:
         filterState:
           value: null
         ownState: {}
-    - id: NATIVE_FILTER-on-time-through
-      name: Earlier cut-off day
-      filterType: filter_select
+    - id: NATIVE_FILTER-timeliness-cutoffs
+      name: Timeliness cut-off days
+      filterType: filter_range
       targets:
         - column:
-            name: on_time_through_day
+            name: timeliness_cutoff_day
           datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
       scope:
         rootPath:
@@ -176,65 +176,18 @@ metadata:
           - 8308
       controlValues:
         enableEmptyFilter: false
-        defaultToFirstItem: false
-        multiSelect: false
-        searchAllOptions: false
-        inverseSelection: false
-        sortAscending: true
-        sortMetric: submission_day
       adhoc_filters:
         - clause: WHERE
           expressionType: SQL
           sqlExpression: "submitted_date IS NOT NULL"
           subject: submitted_date
       type: NATIVE_FILTER
-      description: "The lower of the two cut-off days, whichever of the two filters it is entered in. Reports submitted on or before it read as on time. With both filters left empty the days are the 10th and the 15th. The bucket labels on the chart always carry the days that actually applied."
+      description: "Both timeliness boundaries, as one range. Reports on or before the lower day read as on time, up to the higher day as late, after it as extreme late. One control means the two cannot be set the wrong way round, which two separate day filters allowed. Cleared, the cut-offs are the 10th and the 15th; the bucket labels on the chart always carry the days that applied."
       cascadeParentIds: []
       defaultDataMask:
         extraFormData: {}
         filterState:
-          value:
-            - 10
-        ownState: {}
-    - id: NATIVE_FILTER-late-through
-      name: Later cut-off day
-      filterType: filter_select
-      targets:
-        - column:
-            name: late_through_day
-          datasetUuid: "a1b2c3d4-e5f6-4a7b-8c9d-000000000030"
-      scope:
-        rootPath:
-          - ROOT_ID
-        excluded:
-          - 8301
-          - 8303
-          - 8304
-          - 8305
-          - 8306
-          - 8307
-          - 8308
-      controlValues:
-        enableEmptyFilter: false
-        defaultToFirstItem: false
-        multiSelect: false
-        searchAllOptions: false
-        inverseSelection: false
-        sortAscending: true
-        sortMetric: submission_day
-      adhoc_filters:
-        - clause: WHERE
-          expressionType: SQL
-          sqlExpression: "submitted_date IS NOT NULL"
-          subject: submitted_date
-      type: NATIVE_FILTER
-      description: "The higher of the two cut-off days, whichever of the two filters it is entered in. Reports after the earlier day and on or before this one read as late, and anything after it reads as extreme late. With both filters left empty the days are the 10th and the 15th. The bucket labels on the chart always carry the days that actually applied."
-      cascadeParentIds: []
-      defaultDataMask:
-        extraFormData: {}
-        filterState:
-          value:
-            - 15
+          value: null
         ownState: {}
 position:
   DASHBOARD_VERSION_KEY: v2
