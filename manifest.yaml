@@ -1,4 +1,5 @@
 name: olmis-analytics-core
+version: 1.0.0-RC1
 type: core
 platform_version: ">=1.0.0"
 description: >
