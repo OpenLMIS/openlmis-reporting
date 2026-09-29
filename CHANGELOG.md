@@ -1,7 +1,4 @@
-Upcoming Version (WIP)
-==================
-
-1.0.0 / WIP
+1.0.0 / 2026-09-29
 ==================
 
 New functionality:

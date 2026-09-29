@@ -41,7 +41,7 @@ Declares the package identity and what it provides:
 ```yaml
 name: olmis-analytics-core
 type: core                   # core package — provides ingestion config
-platform_version: ">=1.0.0"
+platform_version: ">=0.1.0"
 includes:
   - connect                  # Debezium connector config
   - dbt                      # dbt models and tests
