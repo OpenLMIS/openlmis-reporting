@@ -1,5 +1,5 @@
 name: olmis-analytics-core
-version: 1.0.0
+version: 1.1.0-SNAPSHOT
 type: core
 platform_version: ">=0.1.0"
 description: >
