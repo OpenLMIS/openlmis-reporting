@@ -26,7 +26,8 @@ with touched_ids as (
         nullIf(JSONExtractString(before, 'id'), '')
       ) != ''
   {% if is_incremental() %}
-    and ts_ms > (select coalesce(max(_cdc_ts_ms), 0) from {{ this }})
+    -- >= so that an event sharing ts_ms with the watermark is not skipped when it lands after the run
+    and ts_ms >= (select coalesce(max(_cdc_ts_ms), 0) from {{ this }})
   {% endif %}
 ),
 
@@ -38,7 +39,8 @@ ranked as (
         nullIf(JSONExtractString(e.after,  'id'), ''),
         nullIf(JSONExtractString(e.before, 'id'), '')
       )
-      order by e.ts_ms desc, e._ingested_at desc
+      -- an update and a delete of one transaction can share ts_ms; the LSN orders them
+      order by e.ts_ms desc, JSONExtractUInt(e.source, 'lsn') desc, e._ingested_at desc
     ) as _rn
   from raw.events_openlmis_requisition_requisition_line_items e
   inner join touched_ids t
