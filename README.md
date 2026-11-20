@@ -81,6 +81,8 @@ Each staging model reconstructs **current state** from the append-only CDC event
 | `stg_geographic_zones` | `referencedata.geographic_zones` | `id` (UUID), with `parent_id` self-join |
 | `stg_requisitions` | `requisition.requisitions` | `id` (UUID), with FK to facilities and programs |
 
+The large requisition tables (`stg_requisitions`, `stg_requisition_line_items`, `stg_status_changes`, `stg_stock_adjustments`) are not recomputed from the full event history on every run. Each has an incremental table, `<model>_with_deleted`, that re-ranks only the ids with new events and keeps a tombstone row (`_cdc_op = 'd'`) for every row deleted in the source; the model itself is a view over that table without the tombstones. Without the tombstone an incremental run would have nothing to replace the deleted row with, and it would stay in staging and in the marts.
+
 ### Mart models (tables)
 
 Marts join staging views into analytics-ready ClickHouse MergeTree tables:
