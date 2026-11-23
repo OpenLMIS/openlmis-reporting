@@ -1,0 +1,75 @@
+{{
+  config(
+    materialized='incremental',
+    incremental_strategy='delete_insert',
+    unique_key='id',
+    engine='MergeTree()',
+    order_by='id',
+    settings={'allow_nullable_key': 1}
+  )
+}}
+
+-- Current-state reconstruction for requisition.status_changes.
+-- Incremental: only re-ranks ids whose raw events arrived after the
+-- materialized watermark. Rows deleted in the source
+-- are kept as tombstones (_cdc_op='d'); see stg_requisitions_with_deleted
+-- for the full pattern.
+
+with touched_ids as (
+  select distinct coalesce(
+    nullIf(JSONExtractString(after,  'id'), ''),
+    nullIf(JSONExtractString(before, 'id'), '')
+  ) as id_str
+  from raw.events_openlmis_requisition_status_changes
+  where coalesce(
+        nullIf(JSONExtractString(after,  'id'), ''),
+        nullIf(JSONExtractString(before, 'id'), '')
+      ) != ''
+  {% if is_incremental() %}
+    -- >= so that an event sharing ts_ms with the watermark is not skipped when it lands after the run
+    and ts_ms >= (select coalesce(max(_cdc_ts_ms), 0) from {{ this }})
+  {% endif %}
+),
+
+ranked as (
+  select
+    e.*,
+    row_number() over (
+      partition by coalesce(
+        nullIf(JSONExtractString(e.after,  'id'), ''),
+        nullIf(JSONExtractString(e.before, 'id'), '')
+      )
+      -- an update and a delete of one transaction can share ts_ms; the LSN orders them
+      order by e.ts_ms desc, JSONExtractUInt(e.source, 'lsn') desc, e._ingested_at desc
+    ) as _rn
+  from raw.events_openlmis_requisition_status_changes e
+  inner join touched_ids t
+    on coalesce(
+         nullIf(JSONExtractString(e.after,  'id'), ''),
+         nullIf(JSONExtractString(e.before, 'id'), '')
+       ) = t.id_str
+),
+
+latest as (
+  select
+    *,
+    if(op = 'd', before, after) as row_json
+  from ranked
+  where _rn = 1
+)
+
+select
+  toUUID(JSONExtractString(row_json, 'id'))                         as id,
+  toUUIDOrNull(JSONExtractString(row_json, 'requisitionid'))        as requisition_id,
+  JSONExtractString(row_json, 'status')                             as status,
+  toUUIDOrNull(JSONExtractString(row_json, 'authorid'))             as author_id,
+  parseDateTimeBestEffortOrNull(JSONExtractString(row_json, 'createddate'))   as created_date,
+  toUUIDOrNull(JSONExtractString(row_json, 'supervisorynodeid'))    as supervisory_node_id,
+
+  -- CDC watermark columns
+  ts_ms                                                          as _cdc_ts_ms,
+  toDateTime64(ts_ms / 1000, 3)                                  as _cdc_ts,
+  op                                                             as _cdc_op
+from latest
+
+{{ legacy_staging_rows('stg_status_changes', 'raw.events_openlmis_requisition_status_changes') }}

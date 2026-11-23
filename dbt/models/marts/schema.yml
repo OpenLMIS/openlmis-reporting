@@ -51,6 +51,9 @@ models:
         tests:
           - not_null
           - unique
+          - no_deleted_source_rows:
+              arguments:
+                source_model: ref('stg_requisitions_with_deleted')
       - name: status
         tests:
           - not_null
@@ -109,6 +112,9 @@ models:
         tests:
           - not_null
           - unique
+          - no_deleted_source_rows:
+              arguments:
+                source_model: ref('stg_requisition_line_items_with_deleted')
       - name: requisition_id
         tests:
           - not_null
@@ -227,6 +233,9 @@ models:
         tests:
           - not_null
           - unique
+          - no_deleted_source_rows:
+              arguments:
+                source_model: ref('stg_stock_adjustments_with_deleted')
       - name: requisition_id
         tests:
           - not_null

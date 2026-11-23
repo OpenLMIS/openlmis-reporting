@@ -103,6 +103,9 @@ models:
         tests:
           - not_null
           - relationships:
+              # a delete landing between the builds of two staging tables in one run leaves them out of step until the next run
+              config:
+                severity: warn
               arguments:
                 to: ref('stg_requisitions')
                 field: id
@@ -256,6 +259,38 @@ models:
       stock_adjustments.reason_id.
     columns:
       - name: reason_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_requisitions_with_deleted
+    description: Latest CDC state of requisitions, including tombstones (_cdc_op = 'd') for rows deleted in the source. Query stg_requisitions instead.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_requisition_line_items_with_deleted
+    description: Latest CDC state of requisition line items, including tombstones (_cdc_op = 'd') for rows deleted in the source. Query stg_requisition_line_items instead.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_status_changes_with_deleted
+    description: Latest CDC state of requisition status changes, including tombstones (_cdc_op = 'd') for rows deleted in the source. Query stg_status_changes instead.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_stock_adjustments_with_deleted
+    description: Latest CDC state of requisition stock adjustments, including tombstones (_cdc_op = 'd') for rows deleted in the source. Query stg_stock_adjustments instead.
+    columns:
+      - name: id
         tests:
           - not_null
           - unique

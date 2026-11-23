@@ -5,7 +5,8 @@
     unique_key='adjustment_id',
     engine='MergeTree()',
     order_by='(reason_name, status_change_date, requisition_id)',
-    settings={'allow_nullable_key': 1}
+    settings={'allow_nullable_key': 1},
+    post_hook="delete from {{ this }} where adjustment_id in (select id from {{ ref('stg_stock_adjustments_with_deleted') }} where _cdc_op = 'd')"
   )
 }}
 
@@ -31,7 +32,8 @@
 --
 -- Incremental design: same shape as mart_stock_status. unique_key=
 -- adjustment_id, watermark on stg_stock_adjustments._cdc_ts. Dimension
--- drift and 3-year-window drift require periodic --full-refresh.
+-- drift and 3-year-window drift require periodic --full-refresh. Adjustments
+-- deleted in the source are removed by the post_hook, as in mart_stock_status.
 
 with status_changes_filtered as (
   select
@@ -134,5 +136,5 @@ left join {{ ref('stg_stock_adjustment_reasons') }} sar
 where r.created_date >= now() - interval 3 year
   and pp.end_date >= now() - interval 3 year
 {% if is_incremental() %}
-  and sa._cdc_ts > (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
+  and sa._cdc_ts >= (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
 {% endif %}

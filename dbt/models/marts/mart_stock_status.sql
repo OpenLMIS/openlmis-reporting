@@ -6,7 +6,8 @@
     on_schema_change='append_new_columns',
     engine='MergeTree()',
     order_by='(requisition_id, line_item_id)',
-    settings={'allow_nullable_key': 1}
+    settings={'allow_nullable_key': 1},
+    post_hook="delete from {{ this }} where line_item_id in (select id from {{ ref('stg_requisition_line_items_with_deleted') }} where _cdc_op = 'd')"
   )
 }}
 
@@ -31,7 +32,12 @@
 -- Incremental design:
 --   - unique_key=line_item_id, strategy=delete_insert. On each run, we
 --     pick up line items whose stg_requisition_line_items._cdc_ts is
---     greater than the watermark already in this mart, then upsert.
+--     at or after the watermark already in this mart, then upsert (>=:
+--     rows of one transaction share _cdc_ts and can land across two runs).
+--   - Source deletes: a deleted line item leaves stg_requisition_line_items
+--     instead of arriving as a newer row, so the upsert cannot remove it
+--     from this mart. The post_hook deletes the rows whose line item is
+--     a tombstone in stg_requisition_line_items_with_deleted.
 --   - Dimension drift: changes to facility names, program names, etc.
 --     are NOT picked up on incremental runs (the watermark is line-item-
 --     side). The mart reflects the dimension values that were current
@@ -189,5 +195,5 @@ left join (
 where r.created_date >= now() - interval 3 year
   and pp.end_date >= now() - interval 3 year
 {% if is_incremental() %}
-  and li._cdc_ts > (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
+  and li._cdc_ts >= (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
 {% endif %}
