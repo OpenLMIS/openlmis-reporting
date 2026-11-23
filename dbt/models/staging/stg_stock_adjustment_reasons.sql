@@ -26,6 +26,10 @@
 -- Because we partition by the global key, the latest event for any
 -- (requisition, reason) pair with that reasonid wins — equivalent to the
 -- legacy argMax(., id) since all copies carry identical attribute values.
+--
+-- No tombstones here (unlike stg_requisitions_with_deleted): deleting one
+-- requisition's copy does not delete the global reason, and the `before`
+-- image of a delete holds only the per-requisition id, not reasonid.
 
 with touched_reason_ids as (
   select distinct coalesce(

@@ -33,8 +33,9 @@
 --   - unique_key=line_item_id, strategy=delete_insert. On each run, we
 --     pick up line items whose stg_requisition_line_items._cdc_ts is
 --     greater than the watermark already in this mart, then upsert.
---   - Source deletes: a deleted line item never passes the watermark
---     filter, so the upsert cannot remove it. The post_hook deletes the
+--   - Source deletes: a deleted line item leaves stg_requisition_line_items
+--     instead of arriving as a newer row, so the upsert cannot remove it
+--     from this mart. The post_hook deletes the
 --     rows whose line item is a tombstone in
 --     stg_requisition_line_items_with_deleted.
 --   - Dimension drift: changes to facility names, program names, etc.

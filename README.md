@@ -71,7 +71,7 @@ Each staging model reconstructs **current state** from the append-only CDC event
 
 1. Partition by primary key (from JSON `after` payload)
 2. Order by `ts_ms desc, _ingested_at desc` (latest event wins)
-3. Filter out deletes (`op != 'd'`)
+3. Filter out deletes (`op != 'd'`); the four incremental requisition tables keep them as tombstones instead (see below)
 4. Extract typed columns with `JSONExtractString`, `JSONExtractBool`, `toUUID`
 
 | Model | Source table | Primary key |
@@ -116,7 +116,7 @@ To create a core package for a different adopter system:
 
 1. **Copy this directory** as a starting point
 2. **Update the connector config**: change the table allowlist, topic prefix, and database connection settings
-3. **Replace the staging models**: one per source table, using the ranked CTE pattern for current-state reconstruction
+3. **Replace the staging models**: one per source table, using the ranked CTE pattern for current-state reconstruction; an incremental staging table must keep tombstones for deleted rows (see `stg_requisitions_with_deleted`)
 4. **Design your marts**: join staging models into the tables your dashboards need
 5. **Add tests**: `not_null`/`unique` on PKs, `relationships` on FKs, `accepted_values` on enums
 6. **Create Superset assets**: author charts/dashboards in the UI, export as YAML, commit to `superset/assets/`

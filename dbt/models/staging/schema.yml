@@ -103,6 +103,9 @@ models:
         tests:
           - not_null
           - relationships:
+              # a requisition deleted between two staging builds briefly leaves its line items orphaned
+              config:
+                severity: warn
               arguments:
                 to: ref('stg_requisitions')
                 field: id
