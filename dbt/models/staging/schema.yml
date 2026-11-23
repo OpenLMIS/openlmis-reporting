@@ -103,7 +103,7 @@ models:
         tests:
           - not_null
           - relationships:
-              # a requisition deleted between two staging builds briefly leaves its line items orphaned
+              # a delete landing between the builds of two staging tables in one run leaves them out of step until the next run
               config:
                 severity: warn
               arguments:

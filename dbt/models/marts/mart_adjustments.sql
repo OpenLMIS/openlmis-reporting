@@ -136,5 +136,5 @@ left join {{ ref('stg_stock_adjustment_reasons') }} sar
 where r.created_date >= now() - interval 3 year
   and pp.end_date >= now() - interval 3 year
 {% if is_incremental() %}
-  and sa._cdc_ts > (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
+  and sa._cdc_ts >= (select coalesce(max(_cdc_ts), toDateTime64(0, 3)) from {{ this }})
 {% endif %}

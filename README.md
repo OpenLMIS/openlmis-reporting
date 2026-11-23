@@ -70,7 +70,7 @@ To customize for your system: copy this file, change the table allowlist and top
 Each staging model reconstructs **current state** from the append-only CDC event stream using a ranked CTE pattern:
 
 1. Partition by primary key (from JSON `after` payload)
-2. Order by `ts_ms desc, _ingested_at desc` (latest event wins)
+2. Order by `ts_ms desc, _ingested_at desc` (latest event wins); the four incremental requisition tables also order by the LSN from `source`, because an update and a delete in one transaction can share `ts_ms`
 3. Filter out deletes (`op != 'd'`); the four incremental requisition tables keep them as tombstones instead (see below)
 4. Extract typed columns with `JSONExtractString`, `JSONExtractBool`, `toUUID`
 

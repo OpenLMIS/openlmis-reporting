@@ -51,6 +51,9 @@ models:
         tests:
           - not_null
           - unique
+          - no_deleted_source_rows:
+              arguments:
+                source_model: ref('stg_requisitions_with_deleted')
       - name: status
         tests:
           - not_null
