@@ -20,9 +20,12 @@
 --
 -- Source deletes: when the latest CDC event of an id is op='d', the row is
 -- kept as a tombstone (_cdc_op='d', id from the `before` image, the other
--- columns empty). Dropping it here would give delete_insert nothing to
+-- columns empty; `before` carries the primary key even under the default
+-- REPLICA IDENTITY). Dropping it here would give delete_insert nothing to
 -- replace, and the last known state would stay in the table forever.
 -- stg_requisitions is the view that leaves the tombstones out.
+--
+-- legacy_staging_rows: one-off upgrade path, see the macro.
 
 with touched_ids as (
   select distinct coalesce(
@@ -84,3 +87,5 @@ select
   toDateTime64(ts_ms / 1000, 3)                           as _cdc_ts,
   op                                                      as _cdc_op
 from latest
+
+{{ legacy_staging_rows('stg_requisitions', 'raw.events_openlmis_requisition_requisitions') }}

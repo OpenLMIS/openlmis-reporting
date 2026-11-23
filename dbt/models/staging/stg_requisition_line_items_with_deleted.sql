@@ -86,3 +86,5 @@ select
   toDateTime64(ts_ms / 1000, 3)                                     as _cdc_ts,
   op                                                                as _cdc_op
 from latest
+
+{{ legacy_staging_rows('stg_requisition_line_items', 'raw.events_openlmis_requisition_requisition_line_items') }}
